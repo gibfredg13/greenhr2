@@ -31,8 +31,10 @@ import {
   CalendarClock,
   Shield,
   Users,
+  Database,
   X
 } from 'lucide-react';
+import { PostgresGovernancePanel } from './PostgresGovernancePanel';
 
 interface SuperAdminGovernanceModuleProps {
   selectedCompany: Company;
@@ -76,7 +78,7 @@ export const SuperAdminGovernanceModule: React.FC<SuperAdminGovernanceModuleProp
   const companyOnboarding = onboardingTasks.filter(t => t.companyId === selectedCompany.id);
   const companyOrgNodes = orgChartNodes.filter(n => n.companyId === selectedCompany.id);
 
-  const [activeSubTab, setActiveSubTab] = useState<'users_extras' | 'company_property' | 'org_chart' | 'kpi_onboarding_admin'>('users_extras');
+  const [activeSubTab, setActiveSubTab] = useState<'users_extras' | 'company_property' | 'org_chart' | 'kpi_onboarding_admin' | 'postgres_db'>('postgres_db');
   const [feedbackBanner, setFeedbackBanner] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -305,7 +307,7 @@ In accordance with Section 34 of the Basic Conditions of Employment Act 75 of 19
             Super Admin Control Center &mdash; {selectedCompany.name}
           </h1>
           <p className="text-xs text-slate-300">
-            Assign portal users, reset passwords, click ON/OFF optional employee extras, issue read-only Company Property agreements, and edit the company Hierarchical Org Chart.
+            Configure PostgreSQL 16 schemas, storage size &amp; automated backups, preview batch imports with diffs, verify SHA-256 auditor hash fingerprints, and manage Portal Users, Company Property &amp; Hierarchical Org Charts.
           </p>
         </div>
 
@@ -341,6 +343,7 @@ In accordance with Section 34 of the Basic Conditions of Employment Act 75 of 19
       {/* Sub-Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
         {[
+          { id: 'postgres_db', label: 'PostgreSQL DB Config, Backups, Diffs & Auditor Hashing', icon: Database },
           { id: 'users_extras', label: 'Portal Users, Passwords & Click On/Off Extras', icon: KeyRound },
           { id: 'company_property', label: 'Company Property & Asset Agreements', icon: Laptop },
           { id: 'org_chart', label: 'Editable Hierarchical Org Chart', icon: GitBranch },
@@ -1201,6 +1204,20 @@ In accordance with Section 34 of the Basic Conditions of Employment Act 75 of 19
             </div>
           </div>
         </div>
+      )}
+
+      {/* SUB-TAB 5: POSTGRESQL DATABASE CONFIG, SCHEMA TESTING, BACKUPS, IMPORT DIFFS & AUDITOR HASHING */}
+      {activeSubTab === 'postgres_db' && (
+        <PostgresGovernancePanel
+          selectedCompany={selectedCompany}
+          employees={employees}
+          portalUsers={portalUsers}
+          companyProperties={companyProperties}
+          employeeKpis={employeeKpis}
+          onboardingTasks={onboardingTasks}
+          orgChartNodes={orgChartNodes}
+          onNotify={showToast}
+        />
       )}
 
       {/* Modal: Inspect Read-Only Property Agreement */}

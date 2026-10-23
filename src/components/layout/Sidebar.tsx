@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'plugins', label: 'Reporting Plugins & B-BBEE', icon: Blocks, badge: '7 Plugins' },
     { id: 'calendar', label: '1-on-1 Sessions Calendar', icon: Calendar, badge: 'Bookings' },
     { id: 'audits', label: 'Matrix Audits & Diagnostics', icon: Target, badge: 'Frameworks' },
-    { id: 'superadmin', label: 'Super Admin & Governance', icon: ShieldCheck, badge: 'Admin' },
+    { id: 'superadmin', label: 'Super Admin & Governance', icon: ShieldCheck, badge: 'Admin + DB' },
     { id: 'compliance', label: 'Statutory Compliance', icon: CalendarCheck, badge: 'SA Law' },
     { id: 'disciplinary', label: 'CCMA & Labour Relations', icon: Scale },
     { id: 'leave', label: 'BCEA Leave Manager', icon: CalendarDays },
