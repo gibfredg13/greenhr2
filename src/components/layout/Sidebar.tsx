@@ -11,7 +11,9 @@ import {
   Sparkles,
   Hexagon,
   Building2,
-  ChevronRight
+  ChevronRight,
+  Calendar,
+  Target
 } from 'lucide-react';
 import { Company, UserRole } from '../../types';
 import { CompanySwitcher } from './CompanySwitcher';
@@ -20,12 +22,13 @@ import { RoleSelector } from './RoleSelector';
 export type DashboardTab =
   | 'overview'
   | 'employees'
+  | 'calendar'
+  | 'audits'
   | 'compliance'
   | 'disciplinary'
   | 'leave'
   | 'billing'
-  | 'vault'
-  | 'ess';
+  | 'vault';
 
 interface SidebarProps {
   companies: Company[];
@@ -55,12 +58,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems: { id: DashboardTab; label: string; icon: any; count?: number; badge?: string }[] = [
     { id: 'overview', label: 'Executive Dashboard', icon: LayoutDashboard },
     { id: 'employees', label: 'Employee Hub', icon: Users },
+    { id: 'calendar', label: '1-on-1 Sessions Calendar', icon: Calendar, badge: 'Bookings' },
+    { id: 'audits', label: 'Matrix Audits & Diagnostics', icon: Target, badge: 'Frameworks' },
     { id: 'compliance', label: 'Statutory Compliance', icon: CalendarCheck, badge: 'SA Law' },
     { id: 'disciplinary', label: 'CCMA & Labour Relations', icon: Scale },
     { id: 'leave', label: 'BCEA Leave Manager', icon: CalendarDays },
     { id: 'billing', label: 'Time Tracking & Billing', icon: Clock },
-    { id: 'vault', label: 'Document Vault & Audit', icon: FolderLock },
-    { id: 'ess', label: 'Self-Service Portal (ESS)', icon: UserCheck }
+    { id: 'vault', label: 'Document Vault & Audit', icon: FolderLock }
   ];
 
   return (
@@ -142,24 +146,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Bottom Hive Assistant Promotion Card */}
-      <div className="p-3 border-t border-slate-900">
-        <button
-          onClick={onOpenAiAssistant}
-          className="w-full p-3 rounded-xl bg-gradient-to-br from-emerald-900/60 to-slate-900 border border-emerald-500/30 hover:border-emerald-400/60 transition-all text-left group"
-        >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              Hive AI Assistant
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
-          </div>
-          <p className="text-[11px] text-slate-300 leading-tight">
-            Draft CCMA warnings, BCEA contracts &amp; statutory legal inquiries.
-          </p>
-        </button>
-      </div>
+      {/* Workspace Hive Assistant for HR Consultants to query companies & personnel */}
+      {(currentRole === 'consultant' || currentRole === 'super_admin') && (
+        <div className="p-3 border-t border-slate-900">
+          <button
+            onClick={onOpenAiAssistant}
+            className="w-full p-3 rounded-xl bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900/60 border border-emerald-500/30 hover:border-emerald-400 transition-all text-left group shadow-lg"
+            title="Launch Hive AI to query client companies, compliance and personnel records"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                Hive AI Consultant Hub
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+            <p className="text-[11px] text-slate-300 leading-tight">
+              Query client companies, BCEA compliance &amp; personnel records.
+            </p>
+          </button>
+        </div>
+      )}
     </aside>
   );
 };

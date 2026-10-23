@@ -13,13 +13,17 @@ import {
   HelpCircle,
   Loader2,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  Building2,
+  UserCheck
 } from 'lucide-react';
 
 interface HiveAssistantDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   selectedCompany: Company;
+  companies?: Company[];
+  onSelectCompany?: (id: string) => void;
   employees: Employee[];
   initialPrompt?: string;
   initialMode?: 'legal_advice' | 'draft_warning' | 'generate_contract' | 'policy_audit';
@@ -29,6 +33,8 @@ export const HiveAssistantDrawer: React.FC<HiveAssistantDrawerProps> = ({
   isOpen,
   onClose,
   selectedCompany,
+  companies = [],
+  onSelectCompany,
   employees,
   initialPrompt = '',
   initialMode = 'legal_advice'
@@ -108,13 +114,13 @@ export const HiveAssistantDrawer: React.FC<HiveAssistantDrawerProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="text-sm font-bold tracking-tight">Hive AI Labour Assistant</h3>
+                <h3 className="text-sm font-bold tracking-tight">Hive AI Consultant Intelligence</h3>
                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
                   Gemini 3.8
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
-                Context: {selectedCompany.name} ({selectedCompany.industry})
+                Query Client Companies &amp; Personnel Files &middot; {selectedCompany.name}
               </p>
             </div>
           </div>
@@ -129,6 +135,47 @@ export const HiveAssistantDrawer: React.FC<HiveAssistantDrawerProps> = ({
 
         {/* Configuration Bar */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 space-y-3 text-xs">
+          {/* Target Company Selector (for Consultant) */}
+          {companies.length > 0 && onSelectCompany && (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 font-semibold whitespace-nowrap flex items-center gap-1">
+                <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                Target Company:
+              </span>
+              <select
+                value={selectedCompany.id}
+                onChange={(e) => onSelectCompany(e.target.value)}
+                className="w-full px-2.5 py-1 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+              >
+                {companies.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} &middot; {c.industry} ({c.employeeCount} staff)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Context Employee Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500 font-semibold whitespace-nowrap flex items-center gap-1">
+              <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+              Target Personnel:
+            </span>
+            <select
+              value={selectedEmpId}
+              onChange={(e) => setSelectedEmpId(e.target.value)}
+              className="w-full px-2.5 py-1 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">General Company Scope (Query all company policies &amp; compliance)</option>
+              {companyEmployees.map(emp => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.firstName} {emp.lastName} &middot; {emp.jobTitle} ({emp.department})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Mode Selector */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
             {[
@@ -153,23 +200,6 @@ export const HiveAssistantDrawer: React.FC<HiveAssistantDrawerProps> = ({
                 </button>
               );
             })}
-          </div>
-
-          {/* Context Employee Selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-slate-500 font-medium whitespace-nowrap">Subject Personnel:</span>
-            <select
-              value={selectedEmpId}
-              onChange={(e) => setSelectedEmpId(e.target.value)}
-              className="w-full px-2.5 py-1 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">General Company Scope (No individual selected)</option>
-              {companyEmployees.map(emp => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.firstName} {emp.lastName} ({emp.jobTitle})
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 

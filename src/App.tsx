@@ -4,13 +4,31 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Company, Employee, ComplianceEvent, DisciplinaryCase, LeaveRequest, TimeEntry, Invoice, EmployeeDocument, UserRole } from './types';
+import {
+  Company,
+  Employee,
+  ComplianceEvent,
+  DisciplinaryCase,
+  LeaveRequest,
+  TimeEntry,
+  Invoice,
+  EmployeeDocument,
+  UserRole,
+  ConsultantBooking,
+  BlockedTimeSlot,
+  EmployeeMeetingRecord,
+  SuperadminPermissionSettings,
+  MatrixAuditRecord,
+  StandardizedTestResult
+} from './types';
 import { api } from './services/api';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar, DashboardTab } from './components/layout/Sidebar';
 import { PublicWebsite } from './components/public/PublicWebsite';
 import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { EmployeeModule } from './components/dashboard/EmployeeModule';
+import { ConsultantCalendarModule } from './components/dashboard/ConsultantCalendarModule';
+import { MatrixAuditModule } from './components/dashboard/MatrixAuditModule';
 import { ComplianceModule } from './components/dashboard/ComplianceModule';
 import { LabourRelationsModule } from './components/dashboard/LabourRelationsModule';
 import { LeaveModule } from './components/dashboard/LeaveModule';
@@ -26,12 +44,18 @@ import {
   INITIAL_LEAVE_REQUESTS,
   INITIAL_TIME_ENTRIES,
   INITIAL_INVOICES,
-  INITIAL_DOCUMENTS
+  INITIAL_DOCUMENTS,
+  INITIAL_BOOKINGS,
+  INITIAL_BLOCKED_SLOTS,
+  INITIAL_MEETING_RECORDS,
+  INITIAL_SUPERADMIN_SETTINGS,
+  INITIAL_MATRIX_AUDITS,
+  INITIAL_DIAGNOSTIC_TEST_RESULTS
 } from './data/seedData';
 
 export default function App() {
   // Navigation view: start on 'public' as confirmed by user in Phase 1
-  const [currentView, setCurrentView] = useState<'public' | 'dashboard'>('public');
+  const [currentView, setCurrentView] = useState<'public' | 'dashboard' | 'ess'>('public');
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [currentRole, setCurrentRole] = useState<UserRole>('consultant');
 
@@ -46,6 +70,16 @@ export default function App() {
   const [invoices, setInvoices] = useState<Invoice[]>(INITIAL_INVOICES);
   const [documents, setDocuments] = useState<EmployeeDocument[]>(INITIAL_DOCUMENTS);
 
+  // Calendar, 1-on-1 Sessions, Transcripts & Superadmin Fine-Grain Permissions
+  const [bookings, setBookings] = useState<ConsultantBooking[]>(INITIAL_BOOKINGS);
+  const [blockedSlots, setBlockedSlots] = useState<BlockedTimeSlot[]>(INITIAL_BLOCKED_SLOTS);
+  const [meetingRecords, setMeetingRecords] = useState<EmployeeMeetingRecord[]>(INITIAL_MEETING_RECORDS);
+  const [superadminSettings, setSuperadminSettings] = useState<SuperadminPermissionSettings>(INITIAL_SUPERADMIN_SETTINGS);
+
+  // Matrix & Grid Framework Audits and Standardized Diagnostic Results
+  const [matrixAudits, setMatrixAudits] = useState<MatrixAuditRecord[]>(INITIAL_MATRIX_AUDITS);
+  const [diagnosticResults, setDiagnosticResults] = useState<StandardizedTestResult[]>(INITIAL_DIAGNOSTIC_TEST_RESULTS);
+
   // AI Assistant Drawer state
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
@@ -55,14 +89,20 @@ export default function App() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [cList, eList, compList, discList, lList, bData, dList] = await Promise.all([
+        const [cList, eList, compList, discList, lList, bData, dList, bkList, blkList, mList, pSettings, maList, dtList] = await Promise.all([
           api.getCompanies(),
           api.getEmployees(),
           api.getComplianceEvents(),
           api.getDisciplinaryCases(),
           api.getLeaveRequests(),
           api.getBillingData(),
-          api.getDocuments()
+          api.getDocuments(),
+          api.getBookings(),
+          api.getBlockedSlots(),
+          api.getMeetings({ role: currentRole }),
+          api.getPermissionSettings(),
+          api.getMatrixAudits(),
+          api.getDiagnosticTests()
         ]);
         if (cList?.length) setCompanies(cList);
         if (eList?.length) setEmployees(eList);
@@ -72,14 +112,221 @@ export default function App() {
         if (bData?.timeEntries) setTimeEntries(bData.timeEntries);
         if (bData?.invoices) setInvoices(bData.invoices);
         if (dList?.length) setDocuments(dList);
+        if (bkList?.length) setBookings(bkList);
+        if (blkList?.length) setBlockedSlots(blkList);
+        if (mList?.length) setMeetingRecords(mList);
+        if (pSettings) setSuperadminSettings(pSettings);
+        if (maList?.length) setMatrixAudits(maList);
+        if (dtList?.length) setDiagnosticResults(dtList);
       } catch (err) {
         console.warn('Backend loading completed with seed data fallback:', err);
       }
     }
     loadData();
-  }, []);
+  }, [currentRole]);
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId) || companies[0];
+
+  // Calendar, 1-on-1 Sessions, Blocked Timeslots & Transcripts Handlers
+  const handleAddBooking = async (bData: Partial<ConsultantBooking>) => {
+    try {
+      const created = await api.createBooking(bData);
+      setBookings(prev => [created, ...prev]);
+    } catch (err: any) {
+      console.warn('Booking API error, using optimistic local creation:', err);
+      const fallback: ConsultantBooking = {
+        id: `bk_${Date.now()}`,
+        employeeId: bData.employeeId || '',
+        companyId: bData.companyId || selectedCompany.id,
+        consultantName: bData.consultantName || 'Naledi Sithole',
+        date: bData.date || new Date().toISOString().split('T')[0],
+        timeSlot: bData.timeSlot || '09:00 - 09:45',
+        sessionType: bData.sessionType || 'teams',
+        reasonWhy: bData.reasonWhy || 'General Consultation',
+        detailsWhat: bData.detailsWhat || '',
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+      setBookings(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateBookingStatus = async (id: string, status: 'confirmed' | 'completed' | 'cancelled' | 'rescheduled', notes?: string) => {
+    try {
+      const updated = await api.updateBookingStatus(id, status, notes);
+      setBookings(prev => prev.map(b => b.id === id ? updated : b));
+    } catch {
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status, notes: notes || b.notes } : b));
+    }
+  };
+
+  const handleAddBlockedSlot = async (slotData: Partial<BlockedTimeSlot>) => {
+    try {
+      const created = await api.createBlockedSlot(slotData);
+      setBlockedSlots(prev => [...prev, created]);
+    } catch {
+      const fallback: BlockedTimeSlot = {
+        id: `blk_${Date.now()}`,
+        consultantName: slotData.consultantName || 'Naledi Sithole',
+        date: slotData.date || new Date().toISOString().split('T')[0],
+        timeSlot: slotData.timeSlot || '14:00 - 14:45',
+        reason: slotData.reason || 'Blocked',
+        createdAt: new Date().toISOString()
+      };
+      setBlockedSlots(prev => [...prev, fallback]);
+    }
+  };
+
+  const handleDeleteBlockedSlot = async (id: string) => {
+    try {
+      await api.deleteBlockedSlot(id);
+    } catch {}
+    setBlockedSlots(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleAddMeetingRecord = async (mData: Partial<EmployeeMeetingRecord>) => {
+    try {
+      const created = await api.createMeeting(mData);
+      setMeetingRecords(prev => [created, ...prev]);
+      // Also automatically register as indexed employee document in vault
+      if (mData.attachmentFileName) {
+        const autoDoc: EmployeeDocument = {
+          id: `doc_meet_${Date.now()}`,
+          employeeId: mData.employeeId || '',
+          companyId: mData.companyId || selectedCompany.id,
+          title: `Attached: ${mData.meetingTitle} (${mData.date})`,
+          category: 'Disciplinary',
+          fileType: 'PDF',
+          uploadedAt: mData.date || new Date().toISOString().split('T')[0],
+          fileSize: mData.attachmentFileSize || '1.4 MB',
+          status: 'Valid'
+        };
+        setDocuments(prev => [autoDoc, ...prev]);
+      }
+    } catch {
+      const fallback: EmployeeMeetingRecord = {
+        id: `meet_${Date.now()}`,
+        employeeId: mData.employeeId || '',
+        companyId: mData.companyId || selectedCompany.id,
+        consultantName: mData.consultantName || 'Naledi Sithole',
+        meetingTitle: mData.meetingTitle || 'HR Consultation',
+        meetingType: mData.meetingType || '1_on_1_regular',
+        cadence: mData.cadence || 'one_off',
+        date: mData.date || new Date().toISOString().split('T')[0],
+        timeSlot: mData.timeSlot || '09:00 - 09:45',
+        sessionFormat: mData.sessionFormat || 'teams',
+        topicWhy: mData.topicWhy || 'Discussion',
+        agendaWhat: mData.agendaWhat || 'Agenda',
+        transcriptOrNotes: mData.transcriptOrNotes || '',
+        permissionLevel: mData.permissionLevel || 'superadmin_and_consultant',
+        attachmentFileName: mData.attachmentFileName,
+        attachmentFileSize: mData.attachmentFileSize,
+        actionItems: mData.actionItems || [],
+        attendees: mData.attendees || [],
+        signedOffByConsultant: true,
+        signedOffDate: mData.date || new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString()
+      };
+      setMeetingRecords(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateMeetingRecord = async (id: string, mData: Partial<EmployeeMeetingRecord>) => {
+    try {
+      const updated = await api.updateMeeting(id, mData);
+      setMeetingRecords(prev => prev.map(m => m.id === id ? updated : m));
+    } catch {
+      setMeetingRecords(prev => prev.map(m => m.id === id ? { ...m, ...mData } : m));
+    }
+  };
+
+  const handleUpdatePermissionSettings = async (settings: Partial<SuperadminPermissionSettings>) => {
+    try {
+      const updated = await api.updatePermissionSettings(settings);
+      setSuperadminSettings(updated);
+    } catch {
+      setSuperadminSettings(prev => ({ ...prev, ...settings }));
+    }
+  };
+
+  // Matrix Audits & Standardized Diagnostic Handlers
+  const handleAddMatrixAudit = async (auditData: Partial<MatrixAuditRecord>) => {
+    try {
+      const created = await api.createMatrixAudit(auditData);
+      setMatrixAudits(prev => [created, ...prev]);
+      // Auto-index into employee document vault
+      const vaultDoc: EmployeeDocument = {
+        id: `doc_audit_${Date.now()}`,
+        employeeId: auditData.employeeId || '',
+        companyId: auditData.companyId || selectedCompany.id,
+        title: `Matrix Audit: ${auditData.frameworkName || '9-Box Grid'} (${auditData.ratingPlacement})`,
+        category: 'Performance',
+        fileType: 'PDF',
+        uploadedAt: auditData.auditDate || new Date().toISOString().split('T')[0],
+        fileSize: '1.8 MB',
+        status: 'Valid'
+      };
+      setDocuments(prev => [vaultDoc, ...prev]);
+    } catch {
+      const fallback: MatrixAuditRecord = {
+        id: `ma_${Date.now()}`,
+        employeeId: auditData.employeeId || '',
+        companyId: auditData.companyId || selectedCompany.id,
+        frameworkType: auditData.frameworkType || 'nine_box_grid',
+        frameworkName: auditData.frameworkName || '9-Box Performance vs Potential Grid',
+        auditDate: auditData.auditDate || new Date().toISOString().split('T')[0],
+        auditorName: auditData.auditorName || 'Naledi Sithole',
+        xAxisScore: auditData.xAxisScore ?? 4,
+        yAxisScore: auditData.yAxisScore ?? 4,
+        ratingPlacement: auditData.ratingPlacement || 'High Performer / Growth Track',
+        statutoryBasis: auditData.statutoryBasis || 'King IV Governance & Talent Succession',
+        notes: auditData.notes || 'Calibrated under standard matrix framework.',
+        actionPlan: auditData.actionPlan || '90-day growth roadmap.',
+        status: 'completed',
+        createdAt: new Date().toISOString()
+      };
+      setMatrixAudits(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleAddDiagnosticTest = async (testData: Partial<StandardizedTestResult>) => {
+    try {
+      const created = await api.createDiagnosticTest(testData);
+      setDiagnosticResults(prev => [created, ...prev]);
+      const certDoc: EmployeeDocument = {
+        id: `doc_diag_${Date.now()}`,
+        employeeId: testData.employeeId || '',
+        companyId: testData.companyId || selectedCompany.id,
+        title: `Certificate: ${testData.frameworkName} (${testData.certificateNumber})`,
+        category: 'Statutory_Record',
+        fileType: 'PDF',
+        uploadedAt: testData.dateCompleted || new Date().toISOString().split('T')[0],
+        fileSize: '2.1 MB',
+        status: 'Valid'
+      };
+      setDocuments(prev => [certDoc, ...prev]);
+    } catch {
+      const fallback: StandardizedTestResult = {
+        id: `tr_${Date.now()}`,
+        employeeId: testData.employeeId || '',
+        companyId: testData.companyId || selectedCompany.id,
+        frameworkId: testData.frameworkId || 'bcea_popia_statutory_diagnostic',
+        frameworkName: testData.frameworkName || 'BCEA & POPIA Statutory Compliance Diagnostic',
+        dateCompleted: testData.dateCompleted || new Date().toISOString().split('T')[0],
+        score: testData.score ?? 18,
+        maxScore: testData.maxScore ?? 20,
+        percentage: testData.percentage ?? 90,
+        normativePercentile: testData.normativePercentile ?? 88,
+        passed: testData.passed ?? true,
+        certificateNumber: testData.certificateNumber || `GH-DIAG-${Date.now().toString().slice(-4)}`,
+        summaryFeedback: testData.summaryFeedback || 'High proficiency demonstrated across all statutory categories.',
+        categoryScores: testData.categoryScores || {},
+        administeredBy: testData.administeredBy || 'Proctored by GreenHive Statutory Engine',
+        createdAt: new Date().toISOString()
+      };
+      setDiagnosticResults(prev => [fallback, ...prev]);
+    }
+  };
 
   // Handlers for state mutations
   const handleAddCompany = async (newComp: Partial<Company>) => {
@@ -292,12 +539,71 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      {currentView === 'public' ? (
+      {currentView === 'public' && (
         <PublicWebsite
           onLaunchWorkspace={() => setCurrentView('dashboard')}
           onOpenAiAssistant={() => setIsAiDrawerOpen(true)}
         />
-      ) : (
+      )}
+
+      {/* Standalone Employee Self-Service (ESS) Portal - Completely Outside Workspace Area */}
+      {currentView === 'ess' && (
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-100">
+          <div className="max-w-7xl mx-auto space-y-4">
+            {/* Standalone ESS Banner & Navigation Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 text-white rounded-2xl shadow-lg border border-emerald-800/40">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                  ESS
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-white flex items-center gap-2">
+                    Employee Self-Service Portal
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
+                      External Employee Area
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-300">
+                    Confidential portal for {selectedCompany.name} staff to book 1-on-1 sessions, request statutory leave, and view verified payslips.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentView('public')}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all border border-slate-700"
+                >
+                  &larr; Public Website
+                </button>
+                <button
+                  onClick={() => setCurrentView('dashboard')}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-950/40 flex items-center gap-1.5"
+                >
+                  Consultant Workspace &rarr;
+                </button>
+              </div>
+            </div>
+
+            {/* Standalone ESS Component */}
+            <EmployeeSelfService
+              selectedCompany={selectedCompany}
+              employees={employees}
+              leaveRequests={leaveRequests}
+              documents={documents}
+              bookings={bookings}
+              blockedSlots={blockedSlots}
+              onApplyLeave={handleAddLeave}
+              onUpdateEmployee={handleUpdateEmployee}
+              onBookSession={handleAddBooking}
+              onCancelBooking={(id) => handleUpdateBookingStatus(id, 'cancelled')}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Multi-Tenant HR Consultant Workspace */}
+      {currentView === 'dashboard' && (
         <div className="flex-1 flex overflow-hidden h-[calc(100vh-64px)]">
           {/* Dashboard Left Sidebar */}
           <Sidebar
@@ -308,7 +614,7 @@ export default function App() {
             currentRole={currentRole}
             onSelectRole={(r) => {
               setCurrentRole(r);
-              if (r === 'employee') setActiveTab('ess');
+              if (r === 'employee') setCurrentView('ess');
             }}
             activeTab={activeTab}
             onSelectTab={(t) => setActiveTab(t)}
@@ -336,11 +642,53 @@ export default function App() {
                 <EmployeeModule
                   selectedCompany={selectedCompany}
                   employees={employees}
+                  meetingRecords={meetingRecords}
+                  bookings={bookings}
+                  matrixAudits={matrixAudits}
+                  diagnosticResults={diagnosticResults}
+                  currentRole={currentRole}
+                  superadminSettings={superadminSettings}
                   onAddEmployee={handleAddEmployee}
                   onUpdateEmployee={handleUpdateEmployee}
                   onDeleteEmployee={handleDeleteEmployee}
                   onOpenAiAssistantWithContext={(empId, context) => {
                     handleOpenAiWithPrompt(context, 'draft_warning');
+                  }}
+                  onAddMeetingRecord={handleAddMeetingRecord}
+                  onNavigateToAudits={() => setActiveTab('audits')}
+                />
+              )}
+
+              {activeTab === 'calendar' && (
+                <ConsultantCalendarModule
+                  selectedCompany={selectedCompany}
+                  employees={employees}
+                  bookings={bookings}
+                  blockedSlots={blockedSlots}
+                  meetingRecords={meetingRecords}
+                  currentRole={currentRole}
+                  superadminSettings={superadminSettings}
+                  onAddBooking={handleAddBooking}
+                  onUpdateBookingStatus={handleUpdateBookingStatus}
+                  onAddBlockedSlot={handleAddBlockedSlot}
+                  onDeleteBlockedSlot={handleDeleteBlockedSlot}
+                  onAddMeetingRecord={handleAddMeetingRecord}
+                  onUpdateMeetingRecord={handleUpdateMeetingRecord}
+                  onUpdatePermissionSettings={handleUpdatePermissionSettings}
+                />
+              )}
+
+              {activeTab === 'audits' && (
+                <MatrixAuditModule
+                  selectedCompany={selectedCompany}
+                  employees={employees}
+                  matrixAudits={matrixAudits}
+                  diagnosticResults={diagnosticResults}
+                  currentRole={currentRole}
+                  onAddMatrixAudit={handleAddMatrixAudit}
+                  onAddDiagnosticTest={handleAddDiagnosticTest}
+                  onOpenAiAssistantWithContext={(context: string) => {
+                    handleOpenAiWithPrompt(context, 'policy_audit');
                   }}
                 />
               )}
@@ -394,17 +742,6 @@ export default function App() {
                   onUploadDocument={handleUploadDocument}
                 />
               )}
-
-              {activeTab === 'ess' && (
-                <EmployeeSelfService
-                  selectedCompany={selectedCompany}
-                  employees={employees}
-                  leaveRequests={leaveRequests}
-                  documents={documents}
-                  onApplyLeave={handleAddLeave}
-                  onUpdateEmployee={handleUpdateEmployee}
-                />
-              )}
             </div>
           </main>
         </div>
@@ -415,6 +752,8 @@ export default function App() {
         isOpen={isAiDrawerOpen}
         onClose={() => setIsAiDrawerOpen(false)}
         selectedCompany={selectedCompany}
+        companies={companies}
+        onSelectCompany={(id) => setSelectedCompanyId(id)}
         employees={employees}
         initialPrompt={aiInitialPrompt}
         initialMode={aiInitialMode}

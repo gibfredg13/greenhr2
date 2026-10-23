@@ -69,13 +69,6 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={onOpenAiAssistant}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl transition-colors shadow-sm"
-          >
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            Hive AI Advisory
-          </button>
-          <button
             onClick={() => onNavigateTab('billing')}
             className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors shadow-sm"
           >
@@ -83,6 +76,36 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             Log Billable Time
           </button>
         </div>
+      </div>
+
+      {/* Dedicated Workspace Section for HR Consultant to Query Companies & Personnel */}
+      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 border border-emerald-500/30 rounded-2xl p-4 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white tracking-tight">
+                Hive AI Consultant Intelligence Workspace
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                Consultant &amp; Superadmin
+              </span>
+            </div>
+            <p className="text-xs text-slate-300">
+              Query multiple client companies, statutory compliance, contracts, and inspect personnel files with Gemini AI.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onOpenAiAssistant}
+          className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all shadow-sm shadow-emerald-400/20"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Query Companies &amp; Personnel with Hive AI
+        </button>
       </div>
 
       {/* 6 Key Executive Metric Widgets */}

@@ -158,11 +158,208 @@ export interface EmployeeDocument {
   id: string;
   companyId: string;
   employeeId: string;
-  employeeName: string;
-  category: 'Contract' | 'ID/Passport' | 'POPIA Consent' | 'Medical' | 'Disciplinary' | 'Performance' | 'Tax/IRP5';
+  employeeName?: string;
+  category: 'Contract' | 'ID/Passport' | 'POPIA Consent' | 'Medical' | 'Disciplinary' | 'Performance' | 'Tax/IRP5' | 'Statutory_Record' | string;
   title: string;
+  fileType?: string;
   uploadedAt: string;
   expiryDate?: string;
   status: 'Valid' | 'Expiring Soon' | 'Expired';
   fileSize: string;
+}
+
+export type SessionType = 'teams' | 'phone' | 'in_person';
+
+export interface ConsultantBooking {
+  id: string;
+  companyId: string;
+  companyName?: string;
+  employeeId: string;
+  employeeName?: string;
+  employeeEmail?: string;
+  employeeRole?: string;
+  consultantId?: string;
+  consultantName: string;
+  sessionType: SessionType;
+  date: string; // YYYY-MM-DD
+  timeSlot: string; // e.g. "09:00 - 09:45"
+  reasonWhy: string;
+  detailsWhat?: string;
+  status: 'confirmed' | 'completed' | 'cancelled' | 'rescheduled';
+  meetingLinkOrLocation?: string;
+  createdAt: string;
+  notes?: string;
+}
+
+export interface BlockedTimeSlot {
+  id: string;
+  consultantName: string;
+  date: string;
+  timeSlot: string;
+  reason: string;
+  createdAt: string;
+}
+
+export type RecurringCadence = 'one_off' | 'weekly' | 'bi_weekly' | 'monthly' | 'quarterly';
+
+export type FineGrainPermissionLevel =
+  | 'superadmin_only'
+  | 'superadmin_and_consultant'
+  | 'superadmin_consultant_manager'
+  | 'all_including_employee';
+
+export interface MeetingActionItem {
+  id: string;
+  task: string;
+  owner: string;
+  dueDate: string;
+  completed: boolean;
+  description?: string;
+  assignee?: string;
+}
+
+export interface EmployeeMeetingRecord {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName?: string;
+  consultantName: string;
+  meetingTitle: string;
+  meetingType: '1_on_1_regular' | 'disciplinary_inquiry' | 'performance_review' | 'grievance' | 'wellness' | 'check_in';
+  cadence: RecurringCadence;
+  date: string;
+  timeSlot: string;
+  sessionFormat: SessionType;
+  topicWhy: string;
+  agendaWhat: string;
+  transcriptOrNotes: string;
+  actionItems?: MeetingActionItem[];
+  attachmentFileName?: string;
+  attachmentFileSize?: string;
+  permissionLevel: FineGrainPermissionLevel;
+  createdByRole?: string;
+  createdAt?: string;
+  nextFollowUpDate?: string;
+  attendees?: string[];
+  signedOffByConsultant?: boolean;
+  signedOffDate?: string;
+}
+
+export interface SuperadminPermissionSettings {
+  defaultMeetingPermission: FineGrainPermissionLevel;
+  allowConsultantsToChangePermissions: boolean;
+  allowManagersToViewTranscripts: boolean;
+  allowEmployeesToViewTheirActionItems: boolean;
+  maskSensitiveGrievanceTranscripts: boolean;
+}
+
+// Matrix & Grid-Based Frameworks Audits
+export type MatrixFrameworkType =
+  | 'nine_box_grid'
+  | 'competency_heatmap'
+  | 'bbee_skills_audit'
+  | 'retention_risk_matrix';
+
+export interface MatrixAuditRecord {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName?: string;
+  auditorName: string;
+  auditorRole?: string;
+  frameworkType: MatrixFrameworkType;
+  auditTitle?: string;
+  auditDate: string; // YYYY-MM-DD
+  xScore?: number; // 1-5 (e.g. Performance / Technical Skills)
+  yScore?: number; // 1-5 (e.g. Potential / Leadership / Flight Risk)
+  quadrantOrCategory?: string; // e.g. "High Potential Star", "Core Pillar", "High Flight Risk"
+  overallRatingPercent?: number; // 0-100%
+  competencyRatings?: Record<string, number>; // Dimension name -> score (1-5)
+  findingsAndStrengths?: string;
+  developmentAreas?: string;
+  recommendedAction?: string;
+  nextAuditDueDate?: string;
+  status: 'Draft' | 'Finalized' | 'Approved' | 'completed' | string;
+  createdAt: string;
+
+  // Convenient aliases
+  frameworkName?: string;
+  xAxisScore?: number;
+  yAxisScore?: number;
+  ratingPlacement?: string;
+  statutoryBasis?: string;
+  notes?: string;
+  actionPlan?: string;
+}
+
+// Standardized Testing and Diagnostic Frameworks
+export type DiagnosticTestType =
+  | 'compliance_bcea_popia'
+  | 'situational_judgment_lra'
+  | 'operational_aptitude'
+  | 'leadership_readiness';
+
+export interface DiagnosticQuestionOption {
+  id: string;
+  text: string;
+  score: number; // e.g. 1-5 or 0/10
+  rationale?: string;
+}
+
+export interface DiagnosticQuestion {
+  id: string;
+  category: string;
+  prompt: string;
+  options: DiagnosticQuestionOption[];
+}
+
+export interface DiagnosticFrameworkTemplate {
+  id: DiagnosticTestType;
+  title: string;
+  subtitle: string;
+  standardNorm: string; // e.g. "SA National Labour Law Standard 2026"
+  description: string;
+  estimatedMinutes: number;
+  categories: string[];
+  questions: DiagnosticQuestion[];
+}
+
+export interface StandardizedTestResult {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName?: string;
+  evaluatorName?: string;
+  testType?: DiagnosticTestType;
+  testTitle?: string;
+  testDate?: string; // YYYY-MM-DD
+  durationMinutes?: number;
+  scoreAchieved?: number;
+  totalPossibleScore?: number;
+  scorePercentage?: number;
+  percentileRank?: number; // 1-99
+  proficiencyBand?: 'Exemplary' | 'Proficient' | 'Needs Development' | 'Critical Compliance Gap';
+  categoryBreakdown?: {
+    category: string;
+    score: number;
+    maxScore: number;
+    percentage: number;
+  }[];
+  diagnosticAnalysis?: string;
+  prescribedInterventions?: string[];
+  certificateNumber: string;
+  createdAt: string;
+
+  // Convenient aliases
+  frameworkId?: string;
+  frameworkName?: string;
+  dateCompleted?: string;
+  score?: number;
+  maxScore?: number;
+  percentage?: number;
+  normativePercentile?: number;
+  passed?: boolean;
+  summaryFeedback?: string;
+  categoryScores?: Record<string, number>;
+  administeredBy?: string;
 }

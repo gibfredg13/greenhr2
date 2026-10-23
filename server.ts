@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
@@ -11,9 +12,31 @@ import {
   INITIAL_LEAVE_REQUESTS,
   INITIAL_TIME_ENTRIES,
   INITIAL_INVOICES,
-  INITIAL_DOCUMENTS
-} from './src/data/seedData';
-import { Company, Employee, ComplianceEvent, DisciplinaryCase, LeaveRequest, TimeEntry, Invoice, EmployeeDocument } from './src/types';
+  INITIAL_DOCUMENTS,
+  INITIAL_BOOKINGS,
+  INITIAL_BLOCKED_SLOTS,
+  INITIAL_MEETING_RECORDS,
+  INITIAL_SUPERADMIN_SETTINGS,
+  INITIAL_MATRIX_AUDITS,
+  INITIAL_DIAGNOSTIC_TEST_RESULTS,
+  DIAGNOSTIC_FRAMEWORKS_CATALOG
+} from './src/data/seedData.ts';
+import type {
+  Company,
+  Employee,
+  ComplianceEvent,
+  DisciplinaryCase,
+  LeaveRequest,
+  TimeEntry,
+  Invoice,
+  EmployeeDocument,
+  ConsultantBooking,
+  BlockedTimeSlot,
+  EmployeeMeetingRecord,
+  SuperadminPermissionSettings,
+  MatrixAuditRecord,
+  StandardizedTestResult
+} from './src/types/index.ts';
 
 dotenv.config();
 
@@ -31,6 +54,12 @@ let leaveRequests: LeaveRequest[] = [...INITIAL_LEAVE_REQUESTS];
 let timeEntries: TimeEntry[] = [...INITIAL_TIME_ENTRIES];
 let invoices: Invoice[] = [...INITIAL_INVOICES];
 let documents: EmployeeDocument[] = [...INITIAL_DOCUMENTS];
+let bookings: ConsultantBooking[] = [...INITIAL_BOOKINGS];
+let blockedSlots: BlockedTimeSlot[] = [...INITIAL_BLOCKED_SLOTS];
+let meetingRecords: EmployeeMeetingRecord[] = [...INITIAL_MEETING_RECORDS];
+let superadminSettings: SuperadminPermissionSettings = { ...INITIAL_SUPERADMIN_SETTINGS };
+let matrixAudits: MatrixAuditRecord[] = [...INITIAL_MATRIX_AUDITS];
+let diagnosticTestResults: StandardizedTestResult[] = [...INITIAL_DIAGNOSTIC_TEST_RESULTS];
 
 // Gemini AI Client setup
 const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -297,6 +326,324 @@ app.post('/api/documents', (req: Request, res: Response) => {
   };
   documents.push(newDoc);
   res.status(201).json(newDoc);
+});
+
+// ----------------- 1-ON-1 SESSIONS & CONSULTANT CALENDAR ----------------- //
+
+// Get bookings (filter by company, employee, or consultant)
+app.get('/api/bookings', (req: Request, res: Response) => {
+  const { companyId, employeeId, consultantName } = req.query;
+  let result = bookings;
+  if (companyId) result = result.filter(b => b.companyId === companyId);
+  if (employeeId) result = result.filter(b => b.employeeId === employeeId);
+  if (consultantName) result = result.filter(b => b.consultantName === consultantName);
+  res.json(result);
+});
+
+// Book a new 1-on-1 session
+app.post('/api/bookings', (req: Request, res: Response) => {
+  const {
+    companyId,
+    companyName,
+    employeeId,
+    employeeName,
+    employeeEmail,
+    employeeRole,
+    consultantId,
+    consultantName,
+    sessionType,
+    date,
+    timeSlot,
+    reasonWhy,
+    detailsWhat
+  } = req.body;
+
+  if (!date || !timeSlot || !reasonWhy || !detailsWhat) {
+    return res.status(400).json({ error: 'Please provide all required session booking details.' });
+  }
+
+  // Check if slot is already blocked out by the consultant
+  const isBlocked = blockedSlots.some(
+    s => s.consultantName === consultantName && s.date === date && s.timeSlot === timeSlot
+  );
+  if (isBlocked) {
+    return res.status(409).json({ error: 'This time slot is blocked out by the consultant on their calendar.' });
+  }
+
+  // Check if consultant is already booked for this slot
+  const isBooked = bookings.some(
+    b => b.consultantName === consultantName && b.date === date && b.timeSlot === timeSlot && b.status !== 'cancelled'
+  );
+  if (isBooked) {
+    return res.status(409).json({ error: 'This time slot is already reserved with this consultant.' });
+  }
+
+  // Generate meeting link or physical location
+  let meetingLinkOrLocation = '';
+  if (sessionType === 'teams') {
+    meetingLinkOrLocation = `https://teams.microsoft.com/l/meetup-join/19%3ameeting_greenhive_${Date.now()}%40thread.v2/0`;
+  } else if (sessionType === 'phone') {
+    meetingLinkOrLocation = `Dedicated Direct Dial: +27 (0)10 880 4920 (Pin: ${Math.floor(1000 + Math.random() * 9000)})`;
+  } else {
+    meetingLinkOrLocation = `${companyName || 'Client Entity'} Executive Consultation Suite A`;
+  }
+
+  const newBooking: ConsultantBooking = {
+    id: `book_${Date.now()}`,
+    companyId,
+    companyName: companyName || 'Client Company',
+    employeeId,
+    employeeName,
+    employeeEmail: employeeEmail || '',
+    employeeRole: employeeRole || 'Team Member',
+    consultantId: consultantId || 'cons_01',
+    consultantName: consultantName || 'Sarah Khanyile',
+    sessionType,
+    date,
+    timeSlot,
+    reasonWhy,
+    detailsWhat,
+    status: 'confirmed',
+    meetingLinkOrLocation,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+
+  bookings.unshift(newBooking);
+  res.status(201).json(newBooking);
+});
+
+// Update booking status or notes (completed, cancelled, rescheduled)
+app.patch('/api/bookings/:id/status', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status, notes } = req.body;
+  const item = bookings.find(b => b.id === id);
+  if (!item) return res.status(404).json({ error: 'Booking not found' });
+
+  if (status) item.status = status;
+  if (notes !== undefined) item.notes = notes;
+  res.json(item);
+});
+
+// Get blocked time slots
+app.get('/api/calendar/blocked-slots', (req: Request, res: Response) => {
+  const { consultantName, date } = req.query;
+  let result = blockedSlots;
+  if (consultantName) result = result.filter(b => b.consultantName === consultantName);
+  if (date) result = result.filter(b => b.date === date);
+  res.json(result);
+});
+
+// Block out time on consultant calendar
+app.post('/api/calendar/blocked-slots', (req: Request, res: Response) => {
+  const { consultantName, date, timeSlot, reason } = req.body;
+  if (!consultantName || !date || !timeSlot || !reason) {
+    return res.status(400).json({ error: 'All fields are required to block time.' });
+  }
+
+  const newBlock: BlockedTimeSlot = {
+    id: `block_${Date.now()}`,
+    consultantName,
+    date,
+    timeSlot,
+    reason,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+
+  blockedSlots.push(newBlock);
+  res.status(201).json(newBlock);
+});
+
+// Unblock a time slot
+app.delete('/api/calendar/blocked-slots/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  blockedSlots = blockedSlots.filter(b => b.id !== id);
+  res.json({ success: true });
+});
+
+// ----------------- REGULAR MEETINGS & CONFIDENTIAL TRANSCRIPTS ----------------- //
+
+// Get meeting records with fine-grain role permission checks
+app.get('/api/meetings', (req: Request, res: Response) => {
+  const { companyId, employeeId, role } = req.query;
+  let results = meetingRecords;
+  if (companyId) results = results.filter(m => m.companyId === companyId);
+  if (employeeId) results = results.filter(m => m.employeeId === employeeId);
+
+  // If a role is passed, enforce Superadmin Fine-Grain Permissions:
+  // - 'superadmin': full unredacted access
+  // - 'consultant': access if permissionLevel is 'superadmin_and_consultant', 'superadmin_consultant_manager', or 'all_including_employee'
+  // - 'company_admin' / 'manager': access if permissionLevel is 'superadmin_consultant_manager' or 'all_including_employee'
+  // - 'employee': access ONLY if permissionLevel is 'all_including_employee'
+  if (role) {
+    const userRole = String(role);
+    if (userRole === 'super_admin') {
+      return res.json(results);
+    } else if (userRole === 'consultant') {
+      const allowed = results.filter(m => m.permissionLevel !== 'superadmin_only');
+      return res.json(allowed);
+    } else if (userRole === 'company_admin' || userRole === 'manager') {
+      const allowed = results.filter(m =>
+        m.permissionLevel === 'superadmin_consultant_manager' || m.permissionLevel === 'all_including_employee'
+      );
+      return res.json(allowed);
+    } else if (userRole === 'employee') {
+      const allowed = results.filter(m => m.permissionLevel === 'all_including_employee');
+      return res.json(allowed);
+    }
+  }
+
+  res.json(results);
+});
+
+// Create meeting record / transcript
+app.post('/api/meetings', (req: Request, res: Response) => {
+  const newMeeting: EmployeeMeetingRecord = {
+    ...req.body,
+    id: `meet_${Date.now()}`,
+    createdAt: new Date().toISOString().split('T')[0],
+    actionItems: req.body.actionItems || []
+  };
+
+  meetingRecords.unshift(newMeeting);
+
+  // Also add to the employee's document vault as a confidential meeting record
+  const emp = employees.find(e => e.id === newMeeting.employeeId);
+  if (emp) {
+    const docTitle = `${newMeeting.meetingTitle} (${newMeeting.date}) - Transcript & Actions`;
+    documents.push({
+      id: `doc_meet_${Date.now()}`,
+      companyId: newMeeting.companyId,
+      employeeId: newMeeting.employeeId,
+      employeeName: newMeeting.employeeName,
+      category: newMeeting.meetingType === 'disciplinary_inquiry' ? 'Disciplinary' : 'Performance',
+      title: docTitle,
+      uploadedAt: new Date().toISOString().split('T')[0],
+      status: 'Valid',
+      fileSize: newMeeting.attachmentFileSize || '850 KB'
+    });
+  }
+
+  res.status(201).json(newMeeting);
+});
+
+// Update meeting record (e.g., action items or permission level)
+app.patch('/api/meetings/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = meetingRecords.findIndex(m => m.id === id);
+  if (index === -1) return res.status(404).json({ error: 'Meeting record not found' });
+
+  meetingRecords[index] = { ...meetingRecords[index], ...req.body };
+  res.json(meetingRecords[index]);
+});
+
+// Delete meeting record
+app.delete('/api/meetings/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  meetingRecords = meetingRecords.filter(m => m.id !== id);
+  res.json({ success: true });
+});
+
+// Superadmin permission settings
+app.get('/api/permissions/settings', (req: Request, res: Response) => {
+  res.json(superadminSettings);
+});
+
+app.post('/api/permissions/settings', (req: Request, res: Response) => {
+  superadminSettings = { ...superadminSettings, ...req.body };
+  res.json(superadminSettings);
+});
+
+// ----------------- MATRIX & GRID-BASED AUDITS ----------------- //
+app.get('/api/matrix-audits', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...matrixAudits];
+  if (companyId) {
+    results = results.filter(a => a.companyId === companyId);
+  }
+  if (employeeId) {
+    results = results.filter(a => a.employeeId === employeeId);
+  }
+  res.json(results);
+});
+
+app.post('/api/matrix-audits', (req: Request, res: Response) => {
+  const newAudit: MatrixAuditRecord = {
+    ...req.body,
+    id: `mat_audit_${Date.now()}`,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+  matrixAudits.unshift(newAudit);
+
+  // Auto-index into the employee's document vault as an Audit Dossier
+  const emp = employees.find(e => e.id === newAudit.employeeId);
+  if (emp) {
+    documents.push({
+      id: `doc_audit_${Date.now()}`,
+      companyId: newAudit.companyId,
+      employeeId: newAudit.employeeId,
+      employeeName: newAudit.employeeName,
+      category: 'Performance',
+      title: `Matrix Audit Report: ${newAudit.auditTitle} (${newAudit.quadrantOrCategory})`,
+      fileType: 'PDF',
+      uploadedAt: newAudit.auditDate || new Date().toISOString().split('T')[0],
+      fileSize: '1.8 MB',
+      status: 'Valid'
+    });
+  }
+
+  res.status(201).json(newAudit);
+});
+
+app.delete('/api/matrix-audits/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  matrixAudits = matrixAudits.filter(a => a.id !== id);
+  res.json({ success: true });
+});
+
+// ----------------- STANDARDIZED DIAGNOSTIC FRAMEWORKS & TESTING ----------------- //
+app.get('/api/diagnostic-frameworks', (req: Request, res: Response) => {
+  res.json(DIAGNOSTIC_FRAMEWORKS_CATALOG);
+});
+
+app.get('/api/diagnostic-tests', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...diagnosticTestResults];
+  if (companyId) {
+    results = results.filter(t => t.companyId === companyId);
+  }
+  if (employeeId) {
+    results = results.filter(t => t.employeeId === employeeId);
+  }
+  res.json(results);
+});
+
+app.post('/api/diagnostic-tests', (req: Request, res: Response) => {
+  const newResult: StandardizedTestResult = {
+    ...req.body,
+    id: `diag_res_${Date.now()}`,
+    certificateNumber: req.body.certificateNumber || `GH-DIAG-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+    createdAt: new Date().toISOString().split('T')[0]
+  };
+  diagnosticTestResults.unshift(newResult);
+
+  // Auto-index into employee file vault as a Diagnostic Certificate
+  const emp = employees.find(e => e.id === newResult.employeeId);
+  if (emp) {
+    documents.push({
+      id: `doc_diag_${Date.now()}`,
+      companyId: newResult.companyId,
+      employeeId: newResult.employeeId,
+      employeeName: newResult.employeeName,
+      category: 'Performance',
+      title: `Diagnostic Certificate: ${newResult.testTitle} (${newResult.proficiencyBand})`,
+      fileType: 'PDF',
+      uploadedAt: newResult.testDate || new Date().toISOString().split('T')[0],
+      fileSize: '1.2 MB',
+      status: 'Valid'
+    });
+  }
+
+  res.status(201).json(newResult);
 });
 
 // ----------------- AI HIVE ASSISTANT (GEMINI) ----------------- //

@@ -1,4 +1,16 @@
-import { Company, Employee, ComplianceEvent, DisciplinaryCase, LeaveRequest, TimeEntry, Invoice, EmployeeDocument } from '../types';
+import type {
+  Company,
+  Employee,
+  ComplianceEvent,
+  DisciplinaryCase,
+  LeaveRequest,
+  TimeEntry,
+  Invoice,
+  EmployeeDocument,
+  MatrixAuditRecord,
+  DiagnosticFrameworkTemplate,
+  StandardizedTestResult
+} from '../types/index.ts';
 
 export const INITIAL_COMPANIES: Company[] = [
   {
@@ -683,3 +695,545 @@ export const INITIAL_DOCUMENTS: EmployeeDocument[] = [
     fileSize: '950 KB'
   }
 ];
+
+export const CONSULTANTS_LIST = [
+  {
+    id: 'cons_01',
+    name: 'Sarah Khanyile',
+    title: 'Lead HR Practitioner & Practice Director',
+    email: 'sarah.k@greenhivehr.co.za',
+    phone: '+27 82 890 1420',
+    specialties: ['BCEA Compliance', 'Executive Contracts', 'Employment Equity', 'POPIA Audits']
+  },
+  {
+    id: 'cons_02',
+    name: 'Markus Steyn',
+    title: 'Senior Labour Relations Specialist',
+    email: 'markus.s@greenhivehr.co.za',
+    phone: '+27 83 410 9920',
+    specialties: ['CCMA Arbitrations', 'Disciplinary Hearings', 'Strike Management', 'Union Negotiations']
+  },
+  {
+    id: 'cons_03',
+    name: 'Nandi Sithole',
+    title: 'Workforce Wellness & Grievance Counsellor',
+    email: 'nandi.s@greenhivehr.co.za',
+    phone: '+27 71 500 2341',
+    specialties: ['Workplace Mediation', 'Grievance Resolution', 'Harassment Inquiries', 'Employee Wellbeing']
+  }
+];
+
+export const AVAILABLE_TIME_SLOTS = [
+  '08:30 - 09:15',
+  '09:30 - 10:15',
+  '10:30 - 11:15',
+  '11:30 - 12:15',
+  '13:30 - 14:15',
+  '14:30 - 15:15',
+  '15:30 - 16:15'
+];
+
+export const INITIAL_BOOKINGS: any[] = [
+  {
+    id: 'book_01',
+    companyId: 'comp_cape_logistics',
+    companyName: 'Cape Logistics (Pty) Ltd',
+    employeeId: 'emp_03',
+    employeeName: 'Keagan Naidoo',
+    employeeEmail: 'keagan.n@capelogistics.co.za',
+    employeeRole: 'Heavy Vehicle Code 14 Driver',
+    consultantId: 'cons_02',
+    consultantName: 'Markus Steyn',
+    sessionType: 'teams',
+    date: '2026-10-24',
+    timeSlot: '09:30 - 10:15',
+    reasonWhy: 'Disciplinary Process & Appeal Rights',
+    detailsWhat: 'Need guidance on the Written Warning issued for route deviation, mitigating factors regarding weather on the N1, and understanding my appeal rights under company policy.',
+    status: 'confirmed',
+    meetingLinkOrLocation: 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_greenhive_knaidoo%40thread.v2/0',
+    createdAt: '2026-10-21'
+  },
+  {
+    id: 'book_02',
+    companyId: 'comp_cape_logistics',
+    companyName: 'Cape Logistics (Pty) Ltd',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    employeeEmail: 'ansie.v@capelogistics.co.za',
+    employeeRole: 'Payroll & Freight Administrator',
+    consultantId: 'cons_01',
+    consultantName: 'Sarah Khanyile',
+    sessionType: 'in_person',
+    date: '2026-10-25',
+    timeSlot: '11:30 - 12:15',
+    reasonWhy: 'BCEA Contract & Maternity Policy Review',
+    detailsWhat: 'Discussion regarding statutory maternity benefits under BCEA Section 25, company top-up policy, and UIF maternity claim documentation.',
+    status: 'confirmed',
+    meetingLinkOrLocation: 'Cape Logistics Head Office - Executive Consultation Room B',
+    createdAt: '2026-10-22'
+  },
+  {
+    id: 'book_03',
+    companyId: 'comp_highveld_eng',
+    companyName: 'Highveld Mining & Heavy Engineering',
+    employeeId: 'emp_04',
+    employeeName: 'Thabo Mokoena',
+    employeeEmail: 'thabo.m@highveld-industrial.co.za',
+    employeeRole: 'Chief Mechanical Artisan',
+    consultantId: 'cons_02',
+    consultantName: 'Markus Steyn',
+    sessionType: 'phone',
+    date: '2026-10-26',
+    timeSlot: '14:30 - 15:15',
+    reasonWhy: 'Incapacity & Medical Board Preparation',
+    detailsWhat: 'Pre-hearing confidential check-in to review doctor recommendations, alternative placement in maintenance logistics, and pension ill-health options.',
+    status: 'confirmed',
+    meetingLinkOrLocation: 'Direct Call: +27 83 410 9920 (Markus Steyn)',
+    createdAt: '2026-10-22'
+  }
+];
+
+export const INITIAL_BLOCKED_SLOTS: any[] = [
+  {
+    id: 'block_01',
+    consultantName: 'Sarah Khanyile',
+    date: '2026-10-24',
+    timeSlot: '13:30 - 14:15',
+    reason: 'CCMA Conciliation Hearing (Case GAJB-1428)',
+    createdAt: '2026-10-20'
+  },
+  {
+    id: 'block_02',
+    consultantName: 'Markus Steyn',
+    date: '2026-10-25',
+    timeSlot: '10:30 - 11:15',
+    reason: 'Department of Employment and Labour Site Audit',
+    createdAt: '2026-10-21'
+  }
+];
+
+export const INITIAL_SUPERADMIN_SETTINGS: any = {
+  defaultMeetingPermission: 'superadmin_and_consultant',
+  allowConsultantsToChangePermissions: true,
+  allowManagersToViewTranscripts: false,
+  allowEmployeesToViewTheirActionItems: true,
+  maskSensitiveGrievanceTranscripts: true
+};
+
+export const INITIAL_MEETING_RECORDS: any[] = [
+  {
+    id: 'meet_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    consultantName: 'Sarah Khanyile',
+    meetingTitle: 'Bi-Weekly Operations Leadership & Fleet OHS Check-In',
+    meetingType: '1_on_1_regular',
+    cadence: 'bi_weekly',
+    date: '2026-10-18',
+    timeSlot: '09:30 - 10:15',
+    sessionFormat: 'teams',
+    topicWhy: 'Fleet Safety & Cross-Border Driver Fatigue Management',
+    agendaWhat: 'Review of driver logbook telematics, overtime thresholds under BCEA Sectoral Determination 9, and rest stop compliance along N1 corridor.',
+    transcriptOrNotes: `TRANSCRIPT & MEETING SUMMARY:
+• Consultant Sarah Khanyile reviewed telematics logs for October cross-border routes (Cape Town - Windhoek).
+• Sipho noted 2 instances where port clearing delays caused driver waiting periods exceeding 14 hours.
+• Agreed that waiting time at border posts must be classified as non-driving work hours under BCEA Section 9 to ensure compliance with compulsory 12-hour daily rest intervals.
+• Discussed mental wellness and fatigue alerts on long-haul routes.
+• Next scheduled meeting confirmed for November 1st at 09:30.`,
+    actionItems: [
+      { id: 'act_01', task: 'Revise driver border clearing rest protocol', owner: 'Sipho Dlamini', dueDate: '2026-10-30', completed: true },
+      { id: 'act_02', task: 'Issue BCEA overtime guidance circular to dispatchers', owner: 'Sarah Khanyile', dueDate: '2026-11-05', completed: false }
+    ],
+    attachmentFileName: 'border_fatigue_telematics_audit.pdf',
+    attachmentFileSize: '1.8 MB',
+    permissionLevel: 'superadmin_and_consultant',
+    createdByRole: 'Consultant',
+    createdAt: '2026-10-18',
+    nextFollowUpDate: '2026-11-01'
+  },
+  {
+    id: 'meet_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_03',
+    employeeName: 'Keagan Naidoo',
+    consultantName: 'Markus Steyn',
+    meetingTitle: 'Formal Disciplinary Inquiry & Fact-Finding Interview',
+    meetingType: 'disciplinary_inquiry',
+    cadence: 'one_off',
+    date: '2026-10-14',
+    timeSlot: '14:30 - 15:30',
+    sessionFormat: 'in_person',
+    topicWhy: 'Investigation into Route Deviation & Telematics Inconsistency',
+    agendaWhat: 'Investigatory inquiry under Schedule 8 of LRA 66 of 1995 regarding unapproved Beaufort West detour.',
+    transcriptOrNotes: `CONFIDENTIAL CCMA INVESTIGATION TRANSCRIPT:
+[STRICTLY RESTRICTED BY SUPERADMIN ORDER - LRA INQUIRY EVIDENCE]
+• Presiding Practitioner: Markus Steyn (Accredited Labour Relations Specialist).
+• In Attendance: Keagan Naidoo (Employee), Nomsa Ndlovu (Peer Workplace Representative).
+• Opening Statement: Employee was informed of rights under LRA Schedule 8, including right to representation, interpretation, and non-incrimination.
+• Employee Statement: Keagan stated: "On October 12 at 22:15, torrential rain on Hex River Pass caused localized flash flooding. Road signs recommended heavy vehicles divert via R46. My cellular signal dropped in the valley, preventing immediate contact with dispatch."
+• Evidence Checked: Telematics GPS confirms detour commenced at 22:19. Weather bureau flash warning verified.
+• Finding: Substantive breach of communications protocol, but mitigating safety factors present. Sanction recommended: Written Warning rather than Final Warning.`,
+    actionItems: [
+      { id: 'act_03', task: 'Attach weather service meteorological alert to file', owner: 'Markus Steyn', dueDate: '2026-10-16', completed: true },
+      { id: 'act_04', task: 'Issue formal LRA Written Warning notice', owner: 'Markus Steyn', dueDate: '2026-10-17', completed: true }
+    ],
+    attachmentFileName: 'inquiry_recording_audio_notes.mp3',
+    attachmentFileSize: '14.2 MB',
+    permissionLevel: 'superadmin_only',
+    createdByRole: 'Super Admin',
+    createdAt: '2026-10-14'
+  },
+  {
+    id: 'meet_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    consultantName: 'Sarah Khanyile',
+    meetingTitle: 'Monthly 1-on-1: Maternity Transition & BCEA Entitlements',
+    meetingType: '1_on_1_regular',
+    cadence: 'monthly',
+    date: '2026-10-22',
+    timeSlot: '11:00 - 11:45',
+    sessionFormat: 'teams',
+    topicWhy: 'BCEA Maternity Leave Schedule & Department Handover',
+    agendaWhat: 'Review of statutory maternity leave dates, UIF UI-19 documentation, and freight ledger handover schedule.',
+    transcriptOrNotes: `MEETING TRANSCRIPT & EMPLOYEE COPY:
+• Discussed BCEA Section 25: 4 consecutive months maternity leave commencement date.
+• Handover Plan: Ansie will train backup clerk on SARS eFiling EMP201 submissions and monthly UI-19 declarations.
+• Communication Preferences: Ansie confirmed she would like company newsletters sent to personal email during leave.
+• Both parties signed the maternity leave arrangement memorandum.`,
+    actionItems: [
+      { id: 'act_05', task: 'Complete UI-19 and UI-2.7 UIF maternity application forms', owner: 'Ansie van der Merwe', dueDate: '2026-11-15', completed: false },
+      { id: 'act_06', task: 'Confirm temporary payroll contractor onboarding', owner: 'Sarah Khanyile', dueDate: '2026-11-20', completed: false }
+    ],
+    attachmentFileName: 'maternity_transition_handover_plan.pdf',
+    attachmentFileSize: '920 KB',
+    permissionLevel: 'all_including_employee',
+    createdByRole: 'Consultant',
+    createdAt: '2026-10-22',
+    nextFollowUpDate: '2026-11-12'
+  }
+];
+
+export const DIAGNOSTIC_FRAMEWORKS_CATALOG: DiagnosticFrameworkTemplate[] = [
+  {
+    id: 'compliance_bcea_popia',
+    title: 'BCEA & POPIA Statutory Compliance Diagnostic',
+    subtitle: 'South African Regulatory Readiness & Data Protection Audit',
+    standardNorm: 'BCEA 75 of 1997 & POPIA Act 4 of 2013 National Standard',
+    description: 'Evaluates employee understanding of statutory working time (BCEA Sec 9), overtime consent, sick leave certification requirements, and POPIA special personal information handling.',
+    estimatedMinutes: 15,
+    categories: [
+      'BCEA Working Hours & Overtime',
+      'Statutory Leave Verification',
+      'POPIA Data Safeguards',
+      'Health & Safety Reporting'
+    ],
+    questions: [
+      {
+        id: 'q_comp_1',
+        category: 'BCEA Working Hours & Overtime',
+        prompt: 'Under BCEA Section 9 & 10, what is the statutory ordinary weekly limit and overtime requirement for employees earning below the ministerial earnings threshold (R254,371.67/yr)?',
+        options: [
+          { id: 'opt_1_a', text: '45 hours ordinary weekly maximum; overtime requires agreement and is capped at 10 hours per week paid at minimum 1.5x.', score: 10, rationale: 'Strictly compliant with BCEA Sec 9 and Sec 10.' },
+          { id: 'opt_1_b', text: '50 hours ordinary weekly maximum; overtime is unpaid if included in basic salary.', score: 0, rationale: 'Violates basic statutory ceilings.' },
+          { id: 'opt_1_c', text: '40 hours ordinary maximum; overtime requires 24 hours written notice.', score: 4, rationale: 'Misquotes statutory ceiling.' }
+        ]
+      },
+      {
+        id: 'q_comp_2',
+        category: 'Statutory Leave Verification',
+        prompt: 'An employee is absent on Friday and Monday claiming sudden illness. Under BCEA Section 23, when may an employer legitimately withhold sick pay pending medical certificate?',
+        options: [
+          { id: 'opt_2_a', text: 'If absent for more than 2 consecutive days, or on more than 2 occasions during an 8-week period without a registered medical practitioner certificate.', score: 10, rationale: 'Exact wording of BCEA Section 23(1).' },
+          { id: 'opt_2_b', text: 'Only if the employee has been absent for at least 5 consecutive business days.', score: 2, rationale: 'Incorrect statutory threshold.' },
+          { id: 'opt_2_c', text: 'Employers may never withhold sick pay under any circumstances.', score: 0, rationale: 'Incorrect under SA Labour Law.' }
+        ]
+      },
+      {
+        id: 'q_comp_3',
+        category: 'POPIA Data Safeguards',
+        prompt: 'Under POPIA Section 19, what measure must an employee take when processing sensitive workforce records (ID copies, medical certificates, biometric data)?',
+        options: [
+          { id: 'opt_3_a', text: 'Maintain reasonable organizational and technical measures, store strictly in encrypted vault, and prevent unauthorized third-party access.', score: 10, rationale: 'Conforms to POPIA Information Officer protocol.' },
+          { id: 'opt_3_b', text: 'Keep physical printouts openly on office desks for quick filing access.', score: 0, rationale: 'Direct breach of POPIA Section 19.' },
+          { id: 'opt_3_c', text: 'Share employee medical details freely with departmental peers.', score: 0, rationale: 'Serious privacy infraction punishable under Section 107.' }
+        ]
+      },
+      {
+        id: 'q_comp_4',
+        category: 'Health & Safety Reporting',
+        prompt: 'Under OHSA Section 24 & COIDA, within what timeframe must a workplace injury resulting in medical treatment or lost workdays be recorded and submitted to the Compensation Commissioner?',
+        options: [
+          { id: 'opt_4_a', text: 'Formal internal incident log immediately; statutory W.Cl.2 employer report submitted within 7 days to Compensation Fund.', score: 10, rationale: 'Conforms to COIDA statutory guidelines.' },
+          { id: 'opt_4_b', text: 'Submit within 6 months at annual financial year-end.', score: 0, rationale: 'Severe penalty risk for delayed reporting.' },
+          { id: 'opt_4_c', text: 'Only report if the employee takes formal civil legal action.', score: 0, rationale: 'Completely non-compliant.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'situational_judgment_lra',
+    title: 'CCMA & LRA Schedule 8 Situational Judgment Battery',
+    subtitle: 'Fair Labour Practice, Progressive Discipline & Procedural Due Process',
+    standardNorm: 'CCMA Code of Good Practice on Dismissal (LRA 66 of 1995)',
+    description: 'Assesses line supervisors and staff on dealing with performance incapacity, workplace grievances, insubordination, and ensuring substantive and procedural fairness.',
+    estimatedMinutes: 20,
+    categories: [
+      'Substantive Fairness',
+      'Procedural Due Process',
+      'Progressive Discipline',
+      'Union & Shop Steward Engagement'
+    ],
+    questions: [
+      {
+        id: 'q_lra_1',
+        category: 'Substantive Fairness',
+        prompt: 'A staff member arrives 15 minutes late twice in one month with valid public transit delays. What is the lawful and balanced HR response under LRA Schedule 8?',
+        options: [
+          { id: 'opt_lra_1a', text: 'Conduct an informal verbal counseling session, review operational transport options, and document discussion without punitive disciplinary sanction.', score: 10, rationale: 'Follows progressive discipline and corrective counseling.' },
+          { id: 'opt_lra_1b', text: 'Immediately issue an unappealable Final Written Warning.', score: 0, rationale: 'Disproportionate sanction; vulnerable at CCMA.' },
+          { id: 'opt_lra_1c', text: 'Dismiss employee on the spot for gross dereliction of duty.', score: 0, rationale: 'Gross substantive unfairness leading to CCMA reinstatement order.' }
+        ]
+      },
+      {
+        id: 'q_lra_2',
+        category: 'Procedural Due Process',
+        prompt: 'Before convening a formal disciplinary hearing for alleged serious misconduct, what procedural rights must be guaranteed to the employee under Item 4 of Schedule 8?',
+        options: [
+          { id: 'opt_lra_2a', text: 'At least 48 hours written notice with specific charges, right to representation (colleague or trade union official), interpreter if requested, and right to cross-examine.', score: 10, rationale: 'Gold-standard procedural compliance for CCMA defense.' },
+          { id: 'opt_lra_2b', text: '10 minutes verbal notice without formal charge sheet.', score: 0, rationale: 'Fatal procedural flaw.' },
+          { id: 'opt_lra_2c', text: 'Right to legal advocate in all cases regardless of collective agreements.', score: 4, rationale: 'Misunderstands representation rules under Schedule 8.' }
+        ]
+      },
+      {
+        id: 'q_lra_3',
+        category: 'Progressive Discipline',
+        prompt: 'How long do standard written warning sanctions normally remain valid under prevailing South African labour practice guidelines before expiring?',
+        options: [
+          { id: 'opt_lra_3a', text: 'Typically 6 months (or 3 months for minor infractions; 12 months for final written warnings), after which the record lapses.', score: 10, rationale: 'Standard South African progressive discipline doctrine.' },
+          { id: 'opt_lra_3b', text: 'Warnings remain permanently active for the employee entire lifetime.', score: 0, rationale: 'Deemed unfair and unconstitutional practice at CCMA.' },
+          { id: 'opt_lra_3c', text: 'Warnings automatically expire after 7 business days.', score: 2, rationale: 'Too short to serve progressive disciplinary purpose.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'operational_aptitude',
+    title: 'Operational & Workflow Aptitude Benchmark',
+    subtitle: 'NQF Operational Execution, Accuracy & Systematic Thinking',
+    standardNorm: 'National Qualifications Framework (NQF) Level 5/6 Competency',
+    description: 'Tests operational speed, resource allocation, inventory/freight reconciliation accuracy, and workplace task prioritization.',
+    estimatedMinutes: 20,
+    categories: [
+      'Workflow Prioritization',
+      'Quantitative Accuracy',
+      'Process Escalation',
+      'Risk Mitigation'
+    ],
+    questions: [
+      {
+        id: 'q_ops_1',
+        category: 'Workflow Prioritization',
+        prompt: 'Three critical issues occur simultaneously: a customer freight manifest discrepancy, an urgent OHS wet-floor spill, and routine email replies. What is the correct priority sequence?',
+        options: [
+          { id: 'opt_ops_1a', text: '1. OHS wet floor safety hazard; 2. Customer freight manifest; 3. Routine email correspondence.', score: 10, rationale: 'Physical human safety always takes legal precedence under OHSA.' },
+          { id: 'opt_ops_1b', text: '1. Routine emails; 2. Customer manifest; 3. OHS spill.', score: 0, rationale: 'Severe negligence and safety violation.' },
+          { id: 'opt_ops_1c', text: 'Ignore all until end of shift.', score: 0, rationale: 'Unacceptable operational behavior.' }
+        ]
+      },
+      {
+        id: 'q_ops_2',
+        category: 'Quantitative Accuracy',
+        prompt: 'A shipment has 40 pallets valued at R12,500 each. A 15% South African VAT rate applies. What is the total invoiced value including VAT?',
+        options: [
+          { id: 'opt_ops_2a', text: 'R 575,000 (Subtotal R500,000 + 15% VAT R75,000).', score: 10, rationale: 'Accurate commercial mathematical calculation.' },
+          { id: 'opt_ops_2b', text: 'R 500,000.', score: 2, rationale: 'Omitted mandatory 15% VAT.' },
+          { id: 'opt_ops_2c', text: 'R 620,000.', score: 0, rationale: 'Incorrect math.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'leadership_readiness',
+    title: 'King IV Leadership & Supervisory Readiness Index',
+    subtitle: 'Ethical Governance, Delegation & Workplace Conflict Resolution',
+    standardNorm: 'King IV Report on Corporate Governance & Supervisory Standard',
+    description: 'Diagnoses readiness for managerial promotion, delegative accountability, inclusive team motivation, and ethical workplace governance.',
+    estimatedMinutes: 25,
+    categories: [
+      'Ethical Decision Making',
+      'Inclusive Team Motivation',
+      'Performance Coaching',
+      'Change Management'
+    ],
+    questions: [
+      {
+        id: 'q_lead_1',
+        category: 'Performance Coaching',
+        prompt: 'An experienced team member demonstrates a sudden decline in weekly productivity. As a prospective supervisor, how do you handle the 1-on-1?',
+        options: [
+          { id: 'opt_lead_1a', text: 'Schedule a private supportive 1-on-1, explore root causes (workload, burnout, or personal factors), co-create a realistic 30-day performance roadmap, and set weekly check-ins.', score: 10, rationale: 'Exemplary servant leadership and constructive coaching.' },
+          { id: 'opt_lead_1b', text: 'Reprimand the employee publicly in front of the team to set an example.', score: 0, rationale: 'Toxic leadership leading to grievances and high turnover.' },
+          { id: 'opt_lead_1c', text: 'Reassign all their tasks to other team members without speaking to them.', score: 2, rationale: 'Avoids accountability and demoralizes the team.' }
+        ]
+      },
+      {
+        id: 'q_lead_2',
+        category: 'Ethical Decision Making',
+        prompt: 'A line manager asks you to alter a timesheet or document audit to conceal a missed statutory deadline. How should an ethical leader respond?',
+        options: [
+          { id: 'opt_lead_2a', text: 'Respectfully refuse, report the accurate data in line with King IV code of conduct, and assist with legitimate remediation plans.', score: 10, rationale: 'Maintains integrity and protects organization from fraud liability.' },
+          { id: 'opt_lead_2b', text: 'Comply with the alteration to avoid conflict with the senior manager.', score: 0, rationale: 'Complicity in fraudulent reporting.' },
+          { id: 'opt_lead_2c', text: 'Post about the incident anonymously on social media.', score: 0, rationale: 'Violates confidentiality policies and employment contract.' }
+        ]
+      }
+    ]
+  }
+];
+
+export const INITIAL_MATRIX_AUDITS: MatrixAuditRecord[] = [
+  {
+    id: 'mat_audit_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    auditorName: 'Naledi Sithole',
+    auditorRole: 'Lead HR Consultant',
+    frameworkType: 'nine_box_grid',
+    auditTitle: '2026 Q3 9-Box Talent & Succession Audit',
+    auditDate: '2026-10-18',
+    xScore: 4.5,
+    yScore: 4.8,
+    quadrantOrCategory: 'High Potential Star (Top Right)',
+    overallRatingPercent: 93,
+    competencyRatings: {
+      'Fleet Logistics Delivery': 5,
+      'Safety & BCEA Compliance': 5,
+      'Team Leadership': 4,
+      'Operational Problem Solving': 5,
+      'Continuous Learning & Agility': 5
+    },
+    findingsAndStrengths: 'Sipho consistently outperforms regional delivery benchmarks with zero road safety infringements over 36 consecutive months. Excellent peer respect and strong understanding of Cape Town arterial freight routes.',
+    developmentAreas: 'Prepare for formal promotion to Fleet Operations Supervisor; needs advanced ERP inventory reporting and logistics dispatch software certifications.',
+    recommendedAction: 'Enroll in NQF Level 6 Supervisory Logistics Program; designate as primary successor for retiring Depot Manager.',
+    nextAuditDueDate: '2027-04-18',
+    status: 'Finalized',
+    createdAt: '2026-10-18'
+  },
+  {
+    id: 'mat_audit_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_03',
+    employeeName: 'Keagan Naidoo',
+    auditorName: 'Markus Steyn',
+    auditorRole: 'Labour Relations Specialist',
+    frameworkType: 'retention_risk_matrix',
+    auditTitle: 'Retention Risk vs Criticality Evaluation',
+    auditDate: '2026-10-15',
+    xScore: 3.2,
+    yScore: 4.5,
+    quadrantOrCategory: 'High Criticality / Medium Flight Risk',
+    overallRatingPercent: 77,
+    competencyRatings: {
+      'Long-Haul Specialized Freight': 5,
+      'Hazchem Certified Handling': 5,
+      'Protocol Adherence': 3,
+      'Communication Transparency': 3
+    },
+    findingsAndStrengths: 'Holds scarce PrDP and Hazchem cross-border certifications critical to national freight routes. High commercial value to client contracts.',
+    developmentAreas: 'Needs improved alignment on telematics protocol adherence following recent investigatory inquiry.',
+    recommendedAction: 'Implement bi-weekly check-in schedule, re-engage on career milestones, and review retention incentive allowance.',
+    nextAuditDueDate: '2027-01-15',
+    status: 'Approved',
+    createdAt: '2026-10-15'
+  },
+  {
+    id: 'mat_audit_03',
+    companyId: 'comp_highveld_eng',
+    employeeId: 'emp_04',
+    employeeName: 'Lerato Khumalo',
+    auditorName: 'Naledi Sithole',
+    auditorRole: 'HR Strategy Director',
+    frameworkType: 'bbee_skills_audit',
+    auditTitle: 'Employment Equity & Skills Development Audit',
+    auditDate: '2026-10-05',
+    xScore: 4.2,
+    yScore: 4.6,
+    quadrantOrCategory: 'Designated Group Star / Priority EEA Trainee',
+    overallRatingPercent: 88,
+    competencyRatings: {
+      'Precision Quality Auditing': 5,
+      'ISO 9001 Compliance': 4,
+      'Engineering Principles': 4,
+      'Mentorship & Guidance': 4
+    },
+    findingsAndStrengths: 'Exemplary analytical accuracy in heavy mechanical component tolerance testing. Perfect fit for company Employment Equity succession plan in Senior Technician tier.',
+    developmentAreas: 'Needs project management credential to oversee full production line turnarounds.',
+    recommendedAction: 'Submit training allocation to merSETA Workplace Skills Plan for bursary funding; formalize management development trajectory.',
+    nextAuditDueDate: '2027-03-30',
+    status: 'Finalized',
+    createdAt: '2026-10-05'
+  }
+];
+
+export const INITIAL_DIAGNOSTIC_TEST_RESULTS: StandardizedTestResult[] = [
+  {
+    id: 'diag_res_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    evaluatorName: 'Naledi Sithole',
+    testType: 'compliance_bcea_popia',
+    testTitle: 'BCEA & POPIA Statutory Compliance Diagnostic',
+    testDate: '2026-10-16',
+    durationMinutes: 14,
+    scoreAchieved: 38,
+    totalPossibleScore: 40,
+    scorePercentage: 95,
+    percentileRank: 96,
+    proficiencyBand: 'Exemplary',
+    categoryBreakdown: [
+      { category: 'BCEA Working Hours & Overtime', score: 10, maxScore: 10, percentage: 100 },
+      { category: 'Statutory Leave Verification', score: 10, maxScore: 10, percentage: 100 },
+      { category: 'POPIA Data Safeguards', score: 10, maxScore: 10, percentage: 100 },
+      { category: 'Health & Safety Reporting', score: 8, maxScore: 10, percentage: 80 }
+    ],
+    diagnosticAnalysis: 'Exceptional mastery of statutory labour provisions, BCEA maximum hours, and POPIA privacy constraints. Demonstrates highest tier compliance readiness.',
+    prescribedInterventions: [
+      'Appoint as Departmental Health & Safety Workplace Representative (OHSA Sec 17)',
+      'Authorize to mentor incoming junior drivers on logbook compliance'
+    ],
+    certificateNumber: 'GH-DIAG-2026-0941',
+    createdAt: '2026-10-16'
+  },
+  {
+    id: 'diag_res_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    evaluatorName: 'Sarah Khanyile',
+    testType: 'operational_aptitude',
+    testTitle: 'Operational & Workflow Aptitude Benchmark',
+    testDate: '2026-10-19',
+    durationMinutes: 18,
+    scoreAchieved: 20,
+    totalPossibleScore: 20,
+    scorePercentage: 100,
+    percentileRank: 99,
+    proficiencyBand: 'Exemplary',
+    categoryBreakdown: [
+      { category: 'Workflow Prioritization', score: 10, maxScore: 10, percentage: 100 },
+      { category: 'Quantitative Accuracy', score: 10, maxScore: 10, percentage: 100 }
+    ],
+    diagnosticAnalysis: 'Flawless quantitative precision and prompt hazard prioritization under pressure. High attention to billing ledgers and freight dispatch manifests.',
+    prescribedInterventions: [
+      'Promote to Senior Freight Billing Administrator upon return from maternity leave',
+      'Authorize for secondary audit sign-off on electronic invoices'
+    ],
+    certificateNumber: 'GH-DIAG-2026-1182',
+    createdAt: '2026-10-19'
+  }
+];
+

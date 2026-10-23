@@ -1,11 +1,11 @@
 import React from 'react';
-import { Hexagon, ArrowRight, Layers, ShieldCheck, Sparkles, Building2 } from 'lucide-react';
+import { Hexagon, ArrowRight, Layers, ShieldCheck, Building2, UserCheck, LayoutDashboard } from 'lucide-react';
 
 interface NavbarProps {
-  currentView: 'public' | 'dashboard';
-  onNavigate: (view: 'public' | 'dashboard') => void;
+  currentView: 'public' | 'dashboard' | 'ess';
+  onNavigate: (view: 'public' | 'dashboard' | 'ess') => void;
   onOpenBookDemo: () => void;
-  onOpenAiAssistant: () => void;
+  onOpenAiAssistant?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -56,6 +56,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Industries
               </a>
             </nav>
+          ) : currentView === 'ess' ? (
+            <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5 text-indigo-700 font-semibold bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">
+                <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
+                Employee Self-Service (ESS) Portal
+              </span>
+              <span aria-hidden="true" className="text-slate-300">·</span>
+              <span>BCEA Leave</span>
+              <span aria-hidden="true" className="text-slate-300">·</span>
+              <span>1-on-1 Sessions</span>
+              <span aria-hidden="true" className="text-slate-300">·</span>
+              <span>Dossier &amp; Payslips</span>
+            </div>
           ) : (
             <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium">
               <span className="flex items-center gap-1.5 text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
@@ -70,18 +83,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           {/* Zone 3: Primary Action / Mode Switch */}
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={onOpenAiAssistant}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 rounded-lg transition-colors whitespace-nowrap shrink-0"
-              title="Launch Gemini South African Labour Law AI Assistant"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              Hive AI
-            </button>
-
-            {currentView === 'public' ? (
+          <div className="flex items-center gap-2.5 shrink-0">
+            {currentView === 'public' && (
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onNavigate('ess')}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                  title="Open Dedicated Employee Self-Service Portal"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Employee Portal
+                </button>
                 <button
                   onClick={onOpenBookDemo}
                   className="hidden sm:inline-flex px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
@@ -97,13 +109,41 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                 </button>
               </div>
-            ) : (
+            )}
+
+            {currentView === 'dashboard' && (
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onNavigate('ess')}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                  title="Switch to standalone Employee Self-Service portal"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Employee Portal (ESS)
+                </button>
                 <button
                   onClick={() => onNavigate('public')}
                   className="px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
                 >
                   Public Website
+                </button>
+              </div>
+            )}
+
+            {currentView === 'ess' && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onNavigate('dashboard')}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-all whitespace-nowrap shrink-0"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Consultant Workspace
+                </button>
+                <button
+                  onClick={() => onNavigate('public')}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                >
+                  Website
                 </button>
               </div>
             )}
