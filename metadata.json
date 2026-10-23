@@ -1,0 +1,6 @@
+{
+  "name": "GreenHiveHR",
+  "description": "Where People, Compliance & Growth Work Together. South Africa's premier multi-tenant SaaS HR, Labour Relations, and Statutory Compliance platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

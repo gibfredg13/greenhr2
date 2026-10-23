@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #1e293b;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Subtle enterprise honeycomb texture utility */
+.hive-pattern {
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(34, 197, 94, 0.08) 1.5px, transparent 1.5px), radial-gradient(rgba(22, 163, 74, 0.05) 1.5px, #f8fafc 1.5px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+.hive-pattern-dark {
+  background-color: #0b1c12;
+  background-image: radial-gradient(rgba(34, 197, 94, 0.15) 1.5px, transparent 1.5px), radial-gradient(rgba(245, 158, 11, 0.1) 1.5px, #0b1c12 1.5px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+/* Custom scrollbars for high-density tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
