@@ -9,8 +9,26 @@ import type {
   EmployeeDocument,
   MatrixAuditRecord,
   DiagnosticFrameworkTemplate,
-  StandardizedTestResult
+  StandardizedTestResult,
+  PortalUserAccount,
+  CompanyPropertyAssignment,
+  EmployeeKpiItem,
+  EmployeeOnboardingTask,
+  OrgChartNode,
+  SetaTrainingRecord,
+  BbbeeScorecardProfile,
+  ReportingPluginId
 } from '../types/index.ts';
+
+export const ALL_REPORTING_PLUGINS: ReportingPluginId[] = [
+  'employment_equity',
+  'bcea_compliance',
+  'popia_compliance',
+  'integrated_leave',
+  'disciplinary_labour',
+  'skills_seta',
+  'bbbee_support'
+];
 
 export const INITIAL_COMPANIES: Company[] = [
   {
@@ -32,7 +50,17 @@ export const INITIAL_COMPANIES: Company[] = [
     province: 'Western Cape',
     monthlyRetainerZar: 12500,
     hourlyRateZar: 1150,
-    createdAt: '2023-02-14'
+    createdAt: '2023-02-14',
+    setaName: 'TETA (Transport Education Training Authority)',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'comp_highveld_eng',
@@ -53,7 +81,17 @@ export const INITIAL_COMPANIES: Company[] = [
     province: 'Gauteng',
     monthlyRetainerZar: 22000,
     hourlyRateZar: 1400,
-    createdAt: '2022-08-01'
+    createdAt: '2022-08-01',
+    setaName: 'MERSETA (Manufacturing, Engineering and Related Services SETA)',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'comp_protea_lodges',
@@ -74,7 +112,16 @@ export const INITIAL_COMPANIES: Company[] = [
     province: 'KwaZulu-Natal',
     monthlyRetainerZar: 16000,
     hourlyRateZar: 1200,
-    createdAt: '2023-06-19'
+    createdAt: '2023-06-19',
+    setaName: 'CATHSSETA (Culture, Art, Tourism, Hospitality, and Sport SETA)',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'comp_solis_agro',
@@ -95,7 +142,16 @@ export const INITIAL_COMPANIES: Company[] = [
     province: 'Limpopo',
     monthlyRetainerZar: 14500,
     hourlyRateZar: 1100,
-    createdAt: '2023-11-05'
+    createdAt: '2023-11-05',
+    setaName: 'AgriSETA (Agricultural Sector Education Training Authority)',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'comp_apex_fintech',
@@ -116,7 +172,16 @@ export const INITIAL_COMPANIES: Company[] = [
     province: 'Gauteng',
     monthlyRetainerZar: 18000,
     hourlyRateZar: 1650,
-    createdAt: '2024-01-10'
+    createdAt: '2024-01-10',
+    setaName: 'MICT SETA (Media, Information and Communication Technologies)',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'skills_seta',
+      'bbbee_support'
+    ]
   }
 ];
 
@@ -151,10 +216,30 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       familyResponsibility: 3,
       parental: 10,
       maternity: 0,
+      adoption: 10,
       study: 2
     },
     fileCompletenessScore: 100,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'African',
+    gender: 'Male',
+    hasDisability: false,
+    occupationalLevel: 'Professionally Qualified',
+    beeRaceScorePoints: 9.5,
+    weeklyHoursScheduled: 45,
+    monthlyOvertimeHours: 14,
+    sundayPublicHolidayShifts: 1,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-01-15',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_02',
@@ -185,11 +270,30 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       sick: 28,
       familyResponsibility: 2,
       parental: 10,
-      maternity: 0,
+      maternity: 120,
+      adoption: 70,
       study: 4
     },
     fileCompletenessScore: 92,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'White',
+    gender: 'Female',
+    hasDisability: false,
+    occupationalLevel: 'Skilled Technical',
+    beeRaceScorePoints: 3.5,
+    weeklyHoursScheduled: 40,
+    monthlyOvertimeHours: 6,
+    sundayPublicHolidayShifts: 0,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-02-10',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_03',
@@ -220,10 +324,29 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       familyResponsibility: 1,
       parental: 10,
       maternity: 0,
+      adoption: 10,
       study: 0
     },
     fileCompletenessScore: 85,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'Indian',
+    gender: 'Male',
+    hasDisability: false,
+    occupationalLevel: 'Semi-Skilled',
+    beeRaceScorePoints: 8.0,
+    weeklyHoursScheduled: 49, // Exceeds 45h BCEA ordinary limit -> triggers BCEA alert
+    monthlyOvertimeHours: 46, // Exceeds 40h monthly BCEA cap -> triggers BCEA alert
+    sundayPublicHolidayShifts: 3,
+    popiaConsentSigned: false, // Pending telematics consent -> triggers POPIA alert
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_04',
@@ -255,10 +378,30 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       familyResponsibility: 3,
       parental: 10,
       maternity: 0,
+      adoption: 10,
       study: 5
     },
     fileCompletenessScore: 98,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'African',
+    gender: 'Male',
+    hasDisability: false,
+    occupationalLevel: 'Skilled Technical',
+    beeRaceScorePoints: 9.0,
+    weeklyHoursScheduled: 45,
+    monthlyOvertimeHours: 22,
+    sundayPublicHolidayShifts: 2,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2024-11-20',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_05',
@@ -288,11 +431,31 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       sick: 26,
       familyResponsibility: 3,
       parental: 10,
-      maternity: 0,
+      maternity: 120,
+      adoption: 70,
       study: 3
     },
     fileCompletenessScore: 95,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'African',
+    gender: 'Female',
+    hasDisability: true,
+    occupationalLevel: 'Professionally Qualified',
+    beeRaceScorePoints: 10.0, // Black Female with Disability = Maximum B-BBEE Priority Points
+    weeklyHoursScheduled: 42,
+    monthlyOvertimeHours: 8,
+    sundayPublicHolidayShifts: 0,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-01-08',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_06',
@@ -322,11 +485,30 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       sick: 25,
       familyResponsibility: 3,
       parental: 10,
-      maternity: 0,
+      maternity: 120,
+      adoption: 70,
       study: 2
     },
     fileCompletenessScore: 94,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'Coloured',
+    gender: 'Female',
+    hasDisability: false,
+    occupationalLevel: 'Senior Management',
+    beeRaceScorePoints: 9.0,
+    weeklyHoursScheduled: 45,
+    monthlyOvertimeHours: 16,
+    sundayPublicHolidayShifts: 2,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-02-01',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'skills_seta',
+      'bbbee_support'
+    ]
   },
   {
     id: 'emp_07',
@@ -358,10 +540,84 @@ export const INITIAL_EMPLOYEES: Employee[] = [
       familyResponsibility: 3,
       parental: 10,
       maternity: 0,
+      adoption: 10,
       study: 5
     },
     fileCompletenessScore: 100,
-    status: 'Active'
+    status: 'Active',
+    beeRaceGroup: 'Foreign National',
+    gender: 'Male',
+    hasDisability: false,
+    occupationalLevel: 'Senior Management',
+    beeRaceScorePoints: 0.0, // Non-SA Citizen excluded from B-BBEE Designated Group recognition
+    weeklyHoursScheduled: 40,
+    monthlyOvertimeHours: 4,
+    sundayPublicHolidayShifts: 0,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-01-20',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'skills_seta',
+      'bbbee_support'
+    ]
+  },
+  {
+    id: 'emp_08',
+    companyId: 'comp_cape_logistics',
+    employeeNumber: 'CL-0215',
+    firstName: 'Zainab',
+    lastName: 'Abrahams',
+    email: 'zainab.a@capelogistics.co.za',
+    phone: '+27 82 910 3841',
+    idNumber: '9106180291085',
+    taxNumber: '9210492817',
+    department: 'Executive & Supply Chain',
+    jobTitle: 'Head of Supply Chain & Compliance',
+    managerName: 'Hendrik Pretorius',
+    contractType: 'Executive',
+    startDate: '2021-05-01',
+    salaryZar: 64000,
+    salaryFrequency: 'Monthly',
+    medicalAidScheme: 'Discovery Health Comprehensive',
+    address: '19 Kloof Nek Road, Gardens, Cape Town, 8001',
+    emergencyContact: {
+      name: 'Tariq Abrahams',
+      relationship: 'Spouse',
+      phone: '+27 82 391 0482'
+    },
+    leaveBalances: {
+      annual: 18.0,
+      sick: 29,
+      familyResponsibility: 3,
+      parental: 10,
+      maternity: 120,
+      adoption: 70,
+      study: 5
+    },
+    fileCompletenessScore: 100,
+    status: 'Active',
+    beeRaceGroup: 'Coloured',
+    gender: 'Female',
+    hasDisability: false,
+    occupationalLevel: 'Top Management',
+    beeRaceScorePoints: 9.5,
+    weeklyHoursScheduled: 42,
+    monthlyOvertimeHours: 5,
+    sundayPublicHolidayShifts: 0,
+    popiaConsentSigned: true,
+    popiaConsentDate: '2025-01-12',
+    enabledReportingPlugins: [
+      'employment_equity',
+      'bcea_compliance',
+      'popia_compliance',
+      'integrated_leave',
+      'disciplinary_labour',
+      'skills_seta',
+      'bbbee_support'
+    ]
   }
 ];
 
@@ -1120,7 +1376,14 @@ export const INITIAL_MATRIX_AUDITS: MatrixAuditRecord[] = [
     recommendedAction: 'Enroll in NQF Level 6 Supervisory Logistics Program; designate as primary successor for retiring Depot Manager.',
     nextAuditDueDate: '2027-04-18',
     status: 'Finalized',
-    createdAt: '2026-10-18'
+    createdAt: '2026-10-18',
+    assignedToEmployee: true,
+    optionalEvaluationEnabled: true,
+    evaluationPrompt: 'Reflect on your Q3 Fleet Logistics performance, safety record, and readiness to mentor junior drivers over the next 6 months.',
+    employeeSelfEvaluationResponse: 'Maintained 100% on-time dispatch across Cape Town arterial routes and mentored two new drivers on BCEA logbook compliance.',
+    employeeSelfScoreX: 4.5,
+    employeeSelfScoreY: 4.5,
+    employeeEvaluationSubmittedAt: '2026-10-19'
   },
   {
     id: 'mat_audit_02',
@@ -1147,7 +1410,10 @@ export const INITIAL_MATRIX_AUDITS: MatrixAuditRecord[] = [
     recommendedAction: 'Implement bi-weekly check-in schedule, re-engage on career milestones, and review retention incentive allowance.',
     nextAuditDueDate: '2027-01-15',
     status: 'Approved',
-    createdAt: '2026-10-15'
+    createdAt: '2026-10-15',
+    assignedToEmployee: true,
+    optionalEvaluationEnabled: true,
+    evaluationPrompt: 'Please share your self-evaluation regarding long-haul route support, telematics adherence, and what support you need from management.'
   },
   {
     id: 'mat_audit_03',
@@ -1174,7 +1440,10 @@ export const INITIAL_MATRIX_AUDITS: MatrixAuditRecord[] = [
     recommendedAction: 'Submit training allocation to merSETA Workplace Skills Plan for bursary funding; formalize management development trajectory.',
     nextAuditDueDate: '2027-03-30',
     status: 'Finalized',
-    createdAt: '2026-10-05'
+    createdAt: '2026-10-05',
+    assignedToEmployee: true,
+    optionalEvaluationEnabled: true,
+    evaluationPrompt: 'Provide your input on your merSETA engineering skills goals and supervisory readiness for 2027.'
   }
 ];
 
@@ -1236,4 +1505,540 @@ export const INITIAL_DIAGNOSTIC_TEST_RESULTS: StandardizedTestResult[] = [
     createdAt: '2026-10-19'
   }
 ];
+
+export const INITIAL_PORTAL_USERS: PortalUserAccount[] = [
+  {
+    id: 'puser_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    usernameOrEmail: 'sipho.d@capelogistics.co.za',
+    portalPassword: 'Cape#2026!Sipho',
+    lastPasswordReset: '2026-10-01',
+    accountStatus: 'Active',
+    optionalExtras: {
+      enableKpi: true,
+      enableOnboarding: true,
+      enableMatrixEvaluation: true,
+      enableCompanyProperty: true,
+      enableOrgChart: true,
+      enableOneOnOneBooking: true,
+      enableLeaveApplication: true
+    }
+  },
+  {
+    id: 'puser_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    usernameOrEmail: 'ansie.v@capelogistics.co.za',
+    portalPassword: 'Cape#2026!Ansie',
+    lastPasswordReset: '2026-09-18',
+    accountStatus: 'Active',
+    optionalExtras: {
+      enableKpi: true,
+      enableOnboarding: true,
+      enableMatrixEvaluation: true,
+      enableCompanyProperty: true,
+      enableOrgChart: true,
+      enableOneOnOneBooking: true,
+      enableLeaveApplication: true
+    }
+  },
+  {
+    id: 'puser_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_03',
+    employeeName: 'Keagan Naidoo',
+    usernameOrEmail: 'keagan.n@capelogistics.co.za',
+    portalPassword: 'Cape#2026!Keagan',
+    lastPasswordReset: '2026-10-10',
+    accountStatus: 'Active',
+    optionalExtras: {
+      enableKpi: true,
+      enableOnboarding: true,
+      enableMatrixEvaluation: true,
+      enableCompanyProperty: true,
+      enableOrgChart: true,
+      enableOneOnOneBooking: true,
+      enableLeaveApplication: true
+    }
+  },
+  {
+    id: 'puser_04',
+    companyId: 'comp_highveld_eng',
+    employeeId: 'emp_04',
+    employeeName: 'Lerato Khumalo',
+    usernameOrEmail: 'lerato.k@highveld-industrial.co.za',
+    portalPassword: 'Highveld#2026!LK',
+    lastPasswordReset: '2026-10-05',
+    accountStatus: 'Active',
+    optionalExtras: {
+      enableKpi: true,
+      enableOnboarding: true,
+      enableMatrixEvaluation: true,
+      enableCompanyProperty: true,
+      enableOrgChart: true,
+      enableOneOnOneBooking: true,
+      enableLeaveApplication: true
+    }
+  }
+];
+
+export const INITIAL_COMPANY_PROPERTIES: CompanyPropertyAssignment[] = [
+  {
+    id: 'prop_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    itemName: 'Dell Latitude 5540 Rugged Fleet Laptop & LTE Router',
+    category: 'Laptop / IT Hardware',
+    assetTag: 'GH-ASSET-CL-2026-0104',
+    insurancePolicyAndCoverage: 'Santam Commercial All-Risk Policy #SNT-884920 (Full Accidental & Transit Cover)',
+    insuredValueZar: 28500,
+    lengthOfUse: '24 Months (2025-03-01 to 2027-03-01 / Duration of Role)',
+    assignedDate: '2025-03-01',
+    returnDueDate: '2027-03-01',
+    agreementTitle: 'BCEA Section 34 Company Property & Asset Custody Agreement',
+    agreementText: `COMPANY PROPERTY CUSTODY & RESPONSIBILITY AGREEMENT (READ-ONLY EMPLOYEE RECORD)
+
+1. ASSET IDENTIFICATION & CUSTODIAN:
+• Assigned Employee: Sipho Dlamini (SA ID: 8604125894083)
+• Employer Entity: Cape Logistics (Pty) Ltd
+• Equipment Description: Dell Latitude 5540 Rugged Fleet Laptop & LTE Router
+• Official Asset Tag: GH-ASSET-CL-2026-0104
+• Insured Replacement Value: R28,500.00 (Santam Policy #SNT-884920)
+• Authorized Length of Use: 24 Months (2025-03-01 to 2027-03-01)
+
+2. CONDITIONS OF USE & SAFEKEEPING:
+The Employee acknowledges receipt of the above company property in good working order. The asset remains the sole property of Cape Logistics (Pty) Ltd and is issued strictly for official operational duties.
+
+3. INSURANCE & THEFT REPORTING:
+In the event of theft, hijacking, or accidental damage, the Employee must report the incident to the South African Police Service (SAPS) within 24 hours to obtain a CAS Case Number and notify HR & Fleet Risk immediately for insurance claim processing.
+
+4. BCEA SECTION 34 LAWFUL DEDUCTION ACKNOWLEDGMENT:
+In terms of Section 34(1) and 34(2) of the Basic Conditions of Employment Act 75 of 1997, any reimbursement for loss or damage caused by gross negligence may only be instituted following a fair inquiry and may not exceed 25% of the Employee's net remuneration in any single pay period.
+
+[LOCKED DOCUMENT — VIEWABLE TO ASSIGNED EMPLOYEE ONLY — NON-EDITABLE]`,
+    acknowledgedByEmployee: true,
+    acknowledgedAt: '2025-03-02',
+    assignedByAdmin: 'Naledi Sithole (Super Admin)'
+  },
+  {
+    id: 'prop_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    itemName: 'Toyota Hilux 2.4 GD-6 Double Cab Fleet Patrol Vehicle (Reg: CAA 482-910)',
+    category: 'Company Vehicle',
+    assetTag: 'GH-ASSET-CL-VEH-019',
+    insurancePolicyAndCoverage: 'Hollard Commercial Fleet Comprehensive #HLD-FLT-9921 (Includes Roadside & MiWay Telematics)',
+    insuredValueZar: 645000,
+    lengthOfUse: '12 Months Renewable Operational Assignment (2026-01-01 to 2026-12-31)',
+    assignedDate: '2026-01-01',
+    returnDueDate: '2026-12-31',
+    agreementTitle: 'Commercial Fleet Vehicle Custody & Telematics Policy Agreement',
+    agreementText: `COMMERCIAL FLEET VEHICLE CUSTODY AGREEMENT (READ-ONLY EMPLOYEE RECORD)
+
+1. VEHICLE & INSURANCE PARTICULARS:
+• Assigned Custodian: Sipho Dlamini (Senior Logistics Controller)
+• Vehicle Description: Toyota Hilux 2.4 GD-6 Double Cab (Registration: CAA 482-910)
+• Asset Tag & Telematics ID: GH-ASSET-CL-VEH-019
+• Insurance Coverage: Hollard Commercial Fleet Comprehensive #HLD-FLT-9921 (Insured Value: R645,000.00)
+• Length of Use: 12 Months Renewable (2026-01-01 to 2026-12-31)
+
+2. STATUTORY & ROAD TRAFFIC COMPLIANCE:
+The Employee must maintain a valid South African Driving Licence and PrDP where applicable, adhere to AARTO / National Road Traffic Act speed limits, and log all business vs private kilometres for SARS travel logbook compliance.
+
+[LOCKED DOCUMENT — VIEWABLE TO ASSIGNED EMPLOYEE ONLY — NON-EDITABLE]`,
+    acknowledgedByEmployee: false,
+    assignedByAdmin: 'Naledi Sithole (Super Admin)'
+  },
+  {
+    id: 'prop_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    itemName: 'Apple MacBook Air M3 15" & Encrypted Payroll Token',
+    category: 'Laptop / IT Hardware',
+    assetTag: 'GH-ASSET-CL-FIN-042',
+    insurancePolicyAndCoverage: 'Santam Electronic Equipment Policy #SNT-884920-IT',
+    insuredValueZar: 34900,
+    lengthOfUse: '36 Months IT Refresh Cycle (2024-06-01 to 2027-06-01)',
+    assignedDate: '2024-06-01',
+    returnDueDate: '2027-06-01',
+    agreementTitle: 'POPIA Encrypted Financial Hardware & Asset Custody Agreement',
+    agreementText: `POPIA ENCRYPTED HARDWARE & ASSET CUSTODY AGREEMENT (READ-ONLY EMPLOYEE RECORD)
+
+• Assigned Employee: Ansie van der Merwe (Payroll & Freight Administrator)
+• Asset Tag: GH-ASSET-CL-FIN-042
+• Insurance: Santam Electronic Equipment Policy #SNT-884920-IT (R34,900.00)
+• Length of Use: 36 Months (2024-06-01 to 2027-06-01)
+
+The Employee agrees to maintain FileVault disk encryption at all times in compliance with POPIA Section 19 security safeguards for payroll data.
+
+[LOCKED DOCUMENT — VIEWABLE TO ASSIGNED EMPLOYEE ONLY — NON-EDITABLE]`,
+    acknowledgedByEmployee: true,
+    acknowledgedAt: '2024-06-02',
+    assignedByAdmin: 'Naledi Sithole (Super Admin)'
+  }
+];
+
+export const INITIAL_EMPLOYEE_KPIS: EmployeeKpiItem[] = [
+  {
+    id: 'kpi_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    period: '2026 Q4 Performance Cycle',
+    kpiTitle: 'On-Time Regional Freight Dispatch & Turnaround (< 15 min delay)',
+    targetMetric: '98.5% On-Time Western Cape Corridor Dispatch',
+    weightPercent: 40,
+    employeeSelfRating: 5,
+    employeeAnswerAndEvidence: 'Achieved 99.1% on-time dispatch across 410 scheduled trips in Q3/Q4. Zero cold-chain temperature excursions.',
+    managerScore: 5,
+    status: 'Submitted by Employee',
+    updatedAt: '2026-10-18'
+  },
+  {
+    id: 'kpi_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    period: '2026 Q4 Performance Cycle',
+    kpiTitle: 'BCEA Driver Fatigue & Logbook Compliance Audit Score',
+    targetMetric: '100% Statutory Rest Interval & AARTO Zero-Defect Logbooks',
+    weightPercent: 35,
+    employeeSelfRating: 4,
+    employeeAnswerAndEvidence: '',
+    status: 'Pending Employee Input',
+    updatedAt: '2026-10-20'
+  },
+  {
+    id: 'kpi_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    period: '2026 Q4 Performance Cycle',
+    kpiTitle: 'Junior Driver Safety Mentorship & Fuel Efficiency',
+    targetMetric: 'Reduce fleet diesel consumption variance by 4% & mentor 2 new hires',
+    weightPercent: 25,
+    employeeSelfRating: 4,
+    employeeAnswerAndEvidence: '',
+    status: 'Pending Employee Input',
+    updatedAt: '2026-10-20'
+  },
+  {
+    id: 'kpi_04',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    period: '2026 Q4 Performance Cycle',
+    kpiTitle: 'SARS EMP201 & UIF Monthly Reconciliation Accuracy',
+    targetMetric: '100% On-Time Filing Before the 7th of Every Month',
+    weightPercent: 50,
+    employeeSelfRating: 5,
+    employeeAnswerAndEvidence: 'All EMP201 and uFiling declarations submitted 3 business days ahead of statutory deadline.',
+    managerScore: 5,
+    status: 'Submitted by Employee',
+    updatedAt: '2026-10-15'
+  }
+];
+
+export const INITIAL_ONBOARDING_TASKS: EmployeeOnboardingTask[] = [
+  {
+    id: 'onb_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    stepCategory: 'Statutory & POPIA',
+    title: 'POPIA Personal Information Processing & Biometric Consent',
+    instructions: 'Confirm that you have read the POPIA Section 18 Privacy Notice and consent to payroll, SARS, UIF, and biometric access processing.',
+    requiresAnswer: true,
+    employeeAnswer: 'I confirm receipt and consent to POPIA personal data processing for statutory employment purposes.',
+    completed: true,
+    completedAt: '2026-01-10'
+  },
+  {
+    id: 'onb_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    stepCategory: 'Role & Safety Induction',
+    title: 'OHSA Section 14 Workplace Health & Safety Emergency Protocol Questionnaire',
+    instructions: 'State your designated assembly point at the Milnerton Depot and confirm you have inspected the fleet fire extinguisher & first-aid kit protocol.',
+    requiresAnswer: true,
+    employeeAnswer: '',
+    completed: false
+  },
+  {
+    id: 'onb_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    stepCategory: 'Contract & Policies',
+    title: 'BCEA Section 29 Employment Terms & Disciplinary Code Acknowledgment',
+    instructions: 'Confirm your understanding of the company working hours, overtime policy, and LRA Schedule 8 disciplinary code.',
+    requiresAnswer: true,
+    employeeAnswer: '',
+    completed: false
+  },
+  {
+    id: 'onb_04',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    employeeName: 'Ansie van der Merwe',
+    stepCategory: 'Statutory & POPIA',
+    title: 'Finance & Payroll POPIA Operator Confidentiality Declaration',
+    instructions: 'Provide your declaration confirming strict confidentiality over employee payslips, banking details, and medical aid disclosures.',
+    requiresAnswer: true,
+    employeeAnswer: '',
+    completed: false
+  }
+];
+
+export const INITIAL_ORG_CHART_NODES: OrgChartNode[] = [
+  {
+    id: 'org_cape_01',
+    companyId: 'comp_cape_logistics',
+    name: 'Hendrik Pretorius',
+    jobTitle: 'Managing Director & CEO',
+    department: 'Executive Board',
+    tierLevel: 1,
+    reportsToNodeId: null,
+    location: 'Cape Town HQ'
+  },
+  {
+    id: 'org_cape_02',
+    companyId: 'comp_cape_logistics',
+    name: 'Andre Venter',
+    jobTitle: 'General Manager: Operations & Finance',
+    department: 'Operations & Finance',
+    tierLevel: 2,
+    reportsToNodeId: 'org_cape_01',
+    location: 'Milnerton Depot'
+  },
+  {
+    id: 'org_cape_03',
+    companyId: 'comp_cape_logistics',
+    name: 'Naledi Sithole (GreenHive HRaaS)',
+    jobTitle: 'Embedded Lead HR & Labour Partner',
+    department: 'GreenHive HRaaS Practice',
+    tierLevel: 2,
+    reportsToNodeId: 'org_cape_01',
+    location: 'Hybrid / Cape Town'
+  },
+  {
+    id: 'org_cape_04',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    name: 'Sipho Dlamini',
+    jobTitle: 'Senior Logistics Controller',
+    department: 'Fleet Operations',
+    tierLevel: 3,
+    reportsToNodeId: 'org_cape_02',
+    location: 'Milnerton Depot'
+  },
+  {
+    id: 'org_cape_05',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_02',
+    name: 'Ansie van der Merwe',
+    jobTitle: 'Payroll & Freight Administrator',
+    department: 'Finance & Compliance',
+    tierLevel: 3,
+    reportsToNodeId: 'org_cape_02',
+    location: 'Bellville Office'
+  },
+  {
+    id: 'org_cape_06',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_03',
+    name: 'Keagan Naidoo',
+    jobTitle: 'Long-Haul Heavy Vehicle Operator',
+    department: 'Fleet Operations',
+    tierLevel: 4,
+    reportsToNodeId: 'org_cape_04',
+    location: 'National N1 Corridor'
+  }
+];
+
+export const INITIAL_SETA_RECORDS: SetaTrainingRecord[] = [
+  {
+    id: 'seta_01',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_01',
+    employeeName: 'Sipho Dlamini',
+    beeRaceGroup: 'African',
+    gender: 'Male',
+    courseOrProgramTitle: 'National Certificate: Supply Chain & Freight Transport Management',
+    programType: 'SETA Learnership (18.1 Employed)',
+    nqfLevel: 'NQF Level 5',
+    setaCode: 'TETA-LRN-59201',
+    costSpendZar: 42000,
+    MandatoryGrantClaimableZar: 18500,
+    includedInWsp: true,
+    completedForAtr: true,
+    bbbeeCategoryCode: 'Category C (Learnerships)',
+    status: 'Completed',
+    completionDate: '2025-11-18'
+  },
+  {
+    id: 'seta_02',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_03',
+    employeeName: 'Keagan Naidoo',
+    beeRaceGroup: 'Indian',
+    gender: 'Male',
+    courseOrProgramTitle: 'Hazchem Dangerous Goods & Defensive Heavy Vehicle Driving Certification',
+    programType: 'Accredited Course',
+    nqfLevel: 'NQF Level 4',
+    setaCode: 'TETA-SKL-10492',
+    costSpendZar: 16500,
+    MandatoryGrantClaimableZar: 6600,
+    includedInWsp: true,
+    completedForAtr: false,
+    bbbeeCategoryCode: 'Category D (Short Courses)',
+    status: 'In Progress'
+  },
+  {
+    id: 'seta_03',
+    companyId: 'comp_cape_logistics',
+    employeeId: 'emp_08',
+    employeeName: 'Zainab Abrahams',
+    beeRaceGroup: 'Coloured',
+    gender: 'Female',
+    courseOrProgramTitle: 'Postgraduate Diploma in Strategic Logistics & Customs Governance',
+    programType: 'Workplace Bursary',
+    nqfLevel: 'NQF Level 8',
+    setaCode: 'TETA-BUR-88102',
+    costSpendZar: 58000,
+    MandatoryGrantClaimableZar: 24000,
+    includedInWsp: true,
+    completedForAtr: true,
+    bbbeeCategoryCode: 'Category A (Bursaries)',
+    status: 'Completed',
+    completionDate: '2025-12-04'
+  },
+  {
+    id: 'seta_04',
+    companyId: 'comp_highveld_eng',
+    employeeId: 'emp_04',
+    employeeName: 'Thabo Mokoena',
+    beeRaceGroup: 'African',
+    gender: 'Male',
+    courseOrProgramTitle: 'MERSETA Master Artisan Automated CNC & Robotics Upskilling',
+    programType: 'SETA Learnership (18.1 Employed)',
+    nqfLevel: 'NQF Level 6',
+    setaCode: 'MER-LRN-30918',
+    costSpendZar: 54000,
+    MandatoryGrantClaimableZar: 22000,
+    includedInWsp: true,
+    completedForAtr: true,
+    bbbeeCategoryCode: 'Category C (Learnerships)',
+    status: 'Completed',
+    completionDate: '2025-10-22'
+  },
+  {
+    id: 'seta_05',
+    companyId: 'comp_highveld_eng',
+    employeeId: 'emp_05',
+    employeeName: 'Lerato Khumalo',
+    beeRaceGroup: 'African',
+    gender: 'Female',
+    courseOrProgramTitle: 'Advanced Mine Health & Safety Act (MHSA) Lead Auditor Programme',
+    programType: 'Accredited Course',
+    nqfLevel: 'NQF Level 6',
+    setaCode: 'MER-OHS-77120',
+    costSpendZar: 29500,
+    MandatoryGrantClaimableZar: 12500,
+    includedInWsp: true,
+    completedForAtr: true,
+    bbbeeCategoryCode: 'Category B (Internships)',
+    status: 'Completed',
+    completionDate: '2026-01-15'
+  }
+];
+
+export const INITIAL_BBBEE_SCORECARDS: BbbeeScorecardProfile[] = [
+  {
+    companyId: 'comp_cape_logistics',
+    financialYear: '2025 / 2026 Verification Period',
+    enterpriseCategory: 'Generic Enterprise (>R50m)',
+    ownershipScore: 23.5,
+    managementControlScore: 15.8,
+    skillsDevelopmentScore: 18.4,
+    enterpriseSupplierDevScore: 36.2,
+    socioEconomicDevScore: 5.0,
+    yesInitiativeBonus: 3.0,
+    priorityElementsSubminimumMet: true,
+    verifiedEvidenceItems: [
+      {
+        id: 'ev_01',
+        element: 'Ownership',
+        documentTitle: 'Share Register & Black Women Ownership Trust Deed (51% Black Owned)',
+        verificationStatus: 'Verified for Audit',
+        updatedAt: '2026-01-14'
+      },
+      {
+        id: 'ev_02',
+        element: 'Management Control & EE',
+        documentTitle: 'Submitted Department of Employment & Labour EEA2 / EEA4 Stamped Acknowledgment',
+        verificationStatus: 'Verified for Audit',
+        updatedAt: '2026-01-15'
+      },
+      {
+        id: 'ev_03',
+        element: 'Skills Development',
+        documentTitle: 'TETA Approved WSP & ATR 2025/2026 + Section 18.1 Learnership Agreements',
+        verificationStatus: 'Verified for Audit',
+        updatedAt: '2026-02-02'
+      },
+      {
+        id: 'ev_04',
+        element: 'Preferential Procurement & ESD',
+        documentTitle: 'TMPS Supplier B-BBEE Certificates & Enterprise Development Loan Agreements',
+        verificationStatus: 'Pending SANAS Review',
+        updatedAt: '2026-02-19'
+      },
+      {
+        id: 'ev_05',
+        element: 'Socio-Economic Development',
+        documentTitle: 'Section 18A Receipts — Township STEM & Driver Youth Academy Sponsorship',
+        verificationStatus: 'Verified for Audit',
+        updatedAt: '2026-01-28'
+      }
+    ]
+  },
+  {
+    companyId: 'comp_highveld_eng',
+    financialYear: '2025 / 2026 Verification Period',
+    enterpriseCategory: 'Generic Enterprise (>R50m)',
+    ownershipScore: 19.0,
+    managementControlScore: 13.2,
+    skillsDevelopmentScore: 16.5,
+    enterpriseSupplierDevScore: 31.8,
+    socioEconomicDevScore: 4.5,
+    yesInitiativeBonus: 0,
+    priorityElementsSubminimumMet: true,
+    verifiedEvidenceItems: [
+      {
+        id: 'ev_he_01',
+        element: 'Management Control & EE',
+        documentTitle: 'EEA2 Workforce Profile & Senior Artisan Transformation Plan',
+        verificationStatus: 'Verified for Audit',
+        updatedAt: '2026-01-18'
+      },
+      {
+        id: 'ev_he_02',
+        element: 'Skills Development',
+        documentTitle: 'MERSETA WSP/ATR Submission & Red Seal Trade Test Invoices',
+        verificationStatus: 'Pending SANAS Review',
+        updatedAt: '2026-02-11'
+      }
+    ]
+  }
+];
+
+
 

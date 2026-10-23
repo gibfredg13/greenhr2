@@ -13,7 +13,14 @@ import {
   SuperadminPermissionSettings,
   MatrixAuditRecord,
   DiagnosticFrameworkTemplate,
-  StandardizedTestResult
+  StandardizedTestResult,
+  PortalUserAccount,
+  CompanyPropertyAssignment,
+  EmployeeKpiItem,
+  EmployeeOnboardingTask,
+  OrgChartNode,
+  SetaTrainingRecord,
+  BbbeeScorecardProfile
 } from '../types';
 
 export const api = {
@@ -31,6 +38,16 @@ export const api = {
       body: JSON.stringify(company)
     });
     if (!res.ok) throw new Error('Failed to create company');
+    return res.json();
+  },
+
+  updateCompany: async (id: string, data: Partial<Company>): Promise<Company> => {
+    const res = await fetch(`/api/companies/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update company');
     return res.json();
   },
 
@@ -317,6 +334,16 @@ export const api = {
     return res.json();
   },
 
+  updateMatrixAudit: async (id: string, data: Partial<MatrixAuditRecord>): Promise<MatrixAuditRecord> => {
+    const res = await fetch(`/api/matrix-audits/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update matrix audit');
+    return res.json();
+  },
+
   deleteMatrixAudit: async (id: string): Promise<void> => {
     const res = await fetch(`/api/matrix-audits/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete matrix audit');
@@ -349,6 +376,193 @@ export const api = {
     return res.json();
   },
 
+  // Portal Users, Passwords & Click On/Off Optional Extras
+  getPortalUsers: async (companyId?: string): Promise<PortalUserAccount[]> => {
+    const url = companyId ? `/api/portal-users?companyId=${companyId}` : '/api/portal-users';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch portal users');
+    return res.json();
+  },
+
+  createPortalUser: async (user: Partial<PortalUserAccount>): Promise<PortalUserAccount> => {
+    const res = await fetch('/api/portal-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user)
+    });
+    if (!res.ok) throw new Error('Failed to create portal user');
+    return res.json();
+  },
+
+  updatePortalUser: async (id: string, data: Partial<PortalUserAccount>): Promise<PortalUserAccount> => {
+    const res = await fetch(`/api/portal-users/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update portal user');
+    return res.json();
+  },
+
+  // Company Property Assignments (Read-Only to Employee)
+  getCompanyProperties: async (companyId?: string): Promise<CompanyPropertyAssignment[]> => {
+    const url = companyId ? `/api/company-properties?companyId=${companyId}` : '/api/company-properties';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch company properties');
+    return res.json();
+  },
+
+  createCompanyProperty: async (prop: Partial<CompanyPropertyAssignment>): Promise<CompanyPropertyAssignment> => {
+    const res = await fetch('/api/company-properties', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prop)
+    });
+    if (!res.ok) throw new Error('Failed to assign company property');
+    return res.json();
+  },
+
+  acknowledgeCompanyProperty: async (id: string): Promise<CompanyPropertyAssignment> => {
+    const res = await fetch(`/api/company-properties/${id}/acknowledge`, { method: 'PATCH' });
+    if (!res.ok) throw new Error('Failed to acknowledge company property');
+    return res.json();
+  },
+
+  // Employee KPIs & Self-Assessment
+  getEmployeeKpis: async (companyId?: string): Promise<EmployeeKpiItem[]> => {
+    const url = companyId ? `/api/kpis?companyId=${companyId}` : '/api/kpis';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch KPIs');
+    return res.json();
+  },
+
+  createEmployeeKpi: async (kpi: Partial<EmployeeKpiItem>): Promise<EmployeeKpiItem> => {
+    const res = await fetch('/api/kpis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(kpi)
+    });
+    if (!res.ok) throw new Error('Failed to create KPI');
+    return res.json();
+  },
+
+  updateEmployeeKpi: async (id: string, data: Partial<EmployeeKpiItem>): Promise<EmployeeKpiItem> => {
+    const res = await fetch(`/api/kpis/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update KPI');
+    return res.json();
+  },
+
+  // Employee Onboarding Tasks & Answers
+  getOnboardingTasks: async (companyId?: string): Promise<EmployeeOnboardingTask[]> => {
+    const url = companyId ? `/api/onboarding-tasks?companyId=${companyId}` : '/api/onboarding-tasks';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch onboarding tasks');
+    return res.json();
+  },
+
+  createOnboardingTask: async (task: Partial<EmployeeOnboardingTask>): Promise<EmployeeOnboardingTask> => {
+    const res = await fetch('/api/onboarding-tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task)
+    });
+    if (!res.ok) throw new Error('Failed to create onboarding task');
+    return res.json();
+  },
+
+  updateOnboardingTask: async (id: string, data: Partial<EmployeeOnboardingTask>): Promise<EmployeeOnboardingTask> => {
+    const res = await fetch(`/api/onboarding-tasks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update onboarding task');
+    return res.json();
+  },
+
+  // Hierarchical Org Chart Nodes
+  getOrgChartNodes: async (companyId?: string): Promise<OrgChartNode[]> => {
+    const url = companyId ? `/api/org-chart?companyId=${companyId}` : '/api/org-chart';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch org chart');
+    return res.json();
+  },
+
+  createOrgChartNode: async (node: Partial<OrgChartNode>): Promise<OrgChartNode> => {
+    const res = await fetch('/api/org-chart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(node)
+    });
+    if (!res.ok) throw new Error('Failed to create org chart node');
+    return res.json();
+  },
+
+  updateOrgChartNode: async (id: string, data: Partial<OrgChartNode>): Promise<OrgChartNode> => {
+    const res = await fetch(`/api/org-chart/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update org chart node');
+    return res.json();
+  },
+
+  deleteOrgChartNode: async (id: string): Promise<void> => {
+    const res = await fetch(`/api/org-chart/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete org chart node');
+  },
+
+  // Skills Development & SETA Records
+  getSetaRecords: async (companyId?: string): Promise<SetaTrainingRecord[]> => {
+    const url = companyId ? `/api/seta-records?companyId=${companyId}` : '/api/seta-records';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch SETA records');
+    return res.json();
+  },
+
+  createSetaRecord: async (rec: Partial<SetaTrainingRecord>): Promise<SetaTrainingRecord> => {
+    const res = await fetch('/api/seta-records', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rec)
+    });
+    if (!res.ok) throw new Error('Failed to create SETA record');
+    return res.json();
+  },
+
+  updateSetaRecord: async (id: string, data: Partial<SetaTrainingRecord>): Promise<SetaTrainingRecord> => {
+    const res = await fetch(`/api/seta-records/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update SETA record');
+    return res.json();
+  },
+
+  // B-BBEE 5-Element Scorecards
+  getBbbeeScorecards: async (companyId?: string): Promise<BbbeeScorecardProfile[]> => {
+    const url = companyId ? `/api/bbbee-scorecards?companyId=${companyId}` : '/api/bbbee-scorecards';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch B-BBEE scorecards');
+    return res.json();
+  },
+
+  updateBbbeeScorecard: async (companyId: string, data: Partial<BbbeeScorecardProfile>): Promise<BbbeeScorecardProfile> => {
+    const res = await fetch(`/api/bbbee-scorecards/${companyId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update B-BBEE scorecard');
+    return res.json();
+  },
+
   // Gemini AI Assistant
   askHiveAssistant: async (data: {
     prompt: string;
@@ -365,3 +579,4 @@ export const api = {
     return res.json();
   }
 };
+

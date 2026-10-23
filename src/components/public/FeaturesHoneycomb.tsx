@@ -31,58 +31,58 @@ export const FeaturesHoneycomb: React.FC<FeaturesHoneycombProps> = ({ onSelectFe
   const features = [
     {
       icon: Users,
-      title: 'Employee Management',
-      desc: 'Centralized South African employee records with 13-digit ID verification, tax numbers, and contract tracking.'
-    },
-    {
-      icon: CalendarDays,
-      title: 'BCEA Leave Management',
-      desc: 'Statutory leave cycles (annual, sick, family, parental) with approval workflows and medical certificate validation.'
-    },
-    {
-      icon: ShieldCheck,
-      title: 'Compliance Monitoring',
-      desc: 'Automated tracking of COIDA ROE, UIF declarations, Employment Equity (EEA2/4), and B-BBEE audits.'
-    },
-    {
-      icon: FolderLock,
-      title: 'Secure Document Vault',
-      desc: 'Encrypted storage for contracts, POPIA consent forms, IDs, medical certificates, and disciplinary history.'
-    },
-    {
-      icon: Scale,
-      title: 'CCMA Disciplinary Toolkit',
-      desc: 'Procedurally fair warning notices, hearing notifications, and investigation dossiers compliant with LRA Schedule 8.'
-    },
-    {
-      icon: Briefcase,
-      title: 'HR Case Management',
-      desc: 'Track grievances, misconduct investigations, incapacity inquiries, and CCMA arbitrations from open to close.'
-    },
-    {
-      icon: Clock,
-      title: 'Consultant Time & Billing',
-      desc: 'Log billable hours against client companies, projects, or retainers, with automatic 15% South African VAT invoicing.'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Performance & Reviews',
-      desc: 'Structured scorecards, 3-month probation check-ins, KPI goal tracking, and performance improvement plans.'
+      title: 'Managed Employee Lifecycle & Records',
+      desc: 'Centralized South African personnel files with 13-digit ID verification, contracts, and active dossier management by your assigned HR partner.'
     },
     {
       icon: UserCheck,
-      title: 'Automated Onboarding',
-      desc: 'Digital employee intake forms, POPIA privacy notices, and standard BCEA employment agreements.'
+      title: '1-on-1 Employee Care & Advisory Desk',
+      desc: 'We don’t leave employees talking to chatbots. Staff book confidential video, phone, or in-person sessions with our accredited HR specialists.'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Matrix Audits & Standardized Diagnostics',
+      desc: 'Expert-calibrated 9-Box Talent Matrices, Skill-Will Grids, leadership readiness, and BCEA literacy diagnostics saved directly to employee files.'
+    },
+    {
+      icon: Scale,
+      title: 'Hands-On CCMA & Disciplinary Support',
+      desc: 'Beyond LRA Schedule 8 warning templates — our labour practitioners draft charges, chair disciplinary inquiries, and represent you at the CCMA.'
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Done-For-You Statutory Compliance',
+      desc: 'Proactive preparation and submission of COIDA Return of Earnings, UIF declarations, Employment Equity (EEA2/EEA4), and B-BBEE audits.'
+    },
+    {
+      icon: CalendarDays,
+      title: 'Guided BCEA Leave Administration',
+      desc: 'Statutory leave cycles (annual, sick, family responsibility, parental) with medical certificate verification and complex incapacity guidance.'
+    },
+    {
+      icon: Briefcase,
+      title: 'Grievance & Incapacity Case Management',
+      desc: 'End-to-end professional handling of workplace grievances, poor work performance (PIP) processes, and medical incapacity investigations.'
+    },
+    {
+      icon: FolderLock,
+      title: 'POPIA-Audited Document Vault',
+      desc: 'Encrypted storage for employment contracts, POPIA consent notices, qualifications, and signed audit trails verified by our compliance desk.'
     },
     {
       icon: FileSignature,
-      title: 'Digital Signatures',
-      desc: 'Paperless electronic approvals on warnings, contracts, and company policies with tamper-evident audit trails.'
+      title: 'Tailored Contracts & Policy Drafting',
+      desc: 'Custom-drafted South African employment agreements, disciplinary codes, and workplace policies with tamper-evident digital signatures.'
+    },
+    {
+      icon: Clock,
+      title: 'Transparent Retainer & SLA Tracking',
+      desc: 'Real-time visibility into every hour our HR specialists invest in your company, with SARS-compliant 15% VAT invoicing.'
     },
     {
       icon: Sparkles,
-      title: 'Gemini AI Hive Assistant',
-      desc: 'Instant South African labour law legal advisory, warning letter drafter, and automated employee file completeness checks.'
+      title: 'Human Expertise + Hive AI Intelligence',
+      desc: 'Our senior HR practitioners combine decades of South African labour experience with instant AI legal research for rapid, rock-solid advice.'
     }
   ];
 
@@ -104,21 +104,21 @@ export const FeaturesHoneycomb: React.FC<FeaturesHoneycombProps> = ({ onSelectFe
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800">
-            Enterprise Architecture
+            Complete HRaaS Capability Suite
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Designed for the Complexity of South African Labour
+            Powerful HR Tools Backed by Dedicated Professionals
           </h2>
           <p className="text-base text-slate-600">
-            A complete suite of practice management, compliance, and labour relations tools built specifically for independent HR consultants and multi-company administrators.
+            Every module in GreenHiveHR is supported by real South African HR &amp; Labour practitioners who bring the knowledge, empathy, and professionalism needed to give your employees an exceptional HR experience.
           </p>
         </div>
 
         {/* Feature Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feat, index) => {
+          {features.map((feat) => {
             const Icon = feat.icon;
-            const isSpecial = feat.title.includes('Gemini');
+            const isSpecial = feat.title.includes('Human Expertise');
             return (
               <div
                 key={feat.title}

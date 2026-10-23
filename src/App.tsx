@@ -19,7 +19,14 @@ import {
   EmployeeMeetingRecord,
   SuperadminPermissionSettings,
   MatrixAuditRecord,
-  StandardizedTestResult
+  StandardizedTestResult,
+  PortalUserAccount,
+  CompanyPropertyAssignment,
+  EmployeeKpiItem,
+  EmployeeOnboardingTask,
+  OrgChartNode,
+  SetaTrainingRecord,
+  BbbeeScorecardProfile
 } from './types';
 import { api } from './services/api';
 import { Navbar } from './components/layout/Navbar';
@@ -27,8 +34,10 @@ import { Sidebar, DashboardTab } from './components/layout/Sidebar';
 import { PublicWebsite } from './components/public/PublicWebsite';
 import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { EmployeeModule } from './components/dashboard/EmployeeModule';
+import { ReportingPluginsModule } from './components/dashboard/ReportingPluginsModule';
 import { ConsultantCalendarModule } from './components/dashboard/ConsultantCalendarModule';
 import { MatrixAuditModule } from './components/dashboard/MatrixAuditModule';
+import { SuperAdminGovernanceModule } from './components/dashboard/SuperAdminGovernanceModule';
 import { ComplianceModule } from './components/dashboard/ComplianceModule';
 import { LabourRelationsModule } from './components/dashboard/LabourRelationsModule';
 import { LeaveModule } from './components/dashboard/LeaveModule';
@@ -50,7 +59,14 @@ import {
   INITIAL_MEETING_RECORDS,
   INITIAL_SUPERADMIN_SETTINGS,
   INITIAL_MATRIX_AUDITS,
-  INITIAL_DIAGNOSTIC_TEST_RESULTS
+  INITIAL_DIAGNOSTIC_TEST_RESULTS,
+  INITIAL_PORTAL_USERS,
+  INITIAL_COMPANY_PROPERTIES,
+  INITIAL_EMPLOYEE_KPIS,
+  INITIAL_ONBOARDING_TASKS,
+  INITIAL_ORG_CHART_NODES,
+  INITIAL_SETA_RECORDS,
+  INITIAL_BBBEE_SCORECARDS
 } from './data/seedData';
 
 export default function App() {
@@ -80,6 +96,17 @@ export default function App() {
   const [matrixAudits, setMatrixAudits] = useState<MatrixAuditRecord[]>(INITIAL_MATRIX_AUDITS);
   const [diagnosticResults, setDiagnosticResults] = useState<StandardizedTestResult[]>(INITIAL_DIAGNOSTIC_TEST_RESULTS);
 
+  // Super Admin Governance, Portal Users, Property, KPIs, Onboarding & Org Chart State
+  const [portalUsers, setPortalUsers] = useState<PortalUserAccount[]>(INITIAL_PORTAL_USERS);
+  const [companyProperties, setCompanyProperties] = useState<CompanyPropertyAssignment[]>(INITIAL_COMPANY_PROPERTIES);
+  const [employeeKpis, setEmployeeKpis] = useState<EmployeeKpiItem[]>(INITIAL_EMPLOYEE_KPIS);
+  const [onboardingTasks, setOnboardingTasks] = useState<EmployeeOnboardingTask[]>(INITIAL_ONBOARDING_TASKS);
+  const [orgChartNodes, setOrgChartNodes] = useState<OrgChartNode[]>(INITIAL_ORG_CHART_NODES);
+
+  // Reporting Plugins: SETA WSP/ATR & B-BBEE 5-Element Scorecards State
+  const [setaRecords, setSetaRecords] = useState<SetaTrainingRecord[]>(INITIAL_SETA_RECORDS);
+  const [bbbeeScorecards, setBbbeeScorecards] = useState<BbbeeScorecardProfile[]>(INITIAL_BBBEE_SCORECARDS);
+
   // AI Assistant Drawer state
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [aiInitialPrompt, setAiInitialPrompt] = useState('');
@@ -89,7 +116,28 @@ export default function App() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [cList, eList, compList, discList, lList, bData, dList, bkList, blkList, mList, pSettings, maList, dtList] = await Promise.all([
+        const [
+          cList,
+          eList,
+          compList,
+          discList,
+          lList,
+          bData,
+          dList,
+          bkList,
+          blkList,
+          mList,
+          pSettings,
+          maList,
+          dtList,
+          puList,
+          cpList,
+          kpiList,
+          obList,
+          orgList,
+          setaList,
+          bbbeeList
+        ] = await Promise.all([
           api.getCompanies(),
           api.getEmployees(),
           api.getComplianceEvents(),
@@ -102,7 +150,14 @@ export default function App() {
           api.getMeetings({ role: currentRole }),
           api.getPermissionSettings(),
           api.getMatrixAudits(),
-          api.getDiagnosticTests()
+          api.getDiagnosticTests(),
+          api.getPortalUsers(),
+          api.getCompanyProperties(),
+          api.getEmployeeKpis(),
+          api.getOnboardingTasks(),
+          api.getOrgChartNodes(),
+          api.getSetaRecords(),
+          api.getBbbeeScorecards()
         ]);
         if (cList?.length) setCompanies(cList);
         if (eList?.length) setEmployees(eList);
@@ -118,6 +173,13 @@ export default function App() {
         if (pSettings) setSuperadminSettings(pSettings);
         if (maList?.length) setMatrixAudits(maList);
         if (dtList?.length) setDiagnosticResults(dtList);
+        if (puList?.length) setPortalUsers(puList);
+        if (cpList?.length) setCompanyProperties(cpList);
+        if (kpiList?.length) setEmployeeKpis(kpiList);
+        if (obList?.length) setOnboardingTasks(obList);
+        if (orgList?.length) setOrgChartNodes(orgList);
+        if (setaList?.length) setSetaRecords(setaList);
+        if (bbbeeList?.length) setBbbeeScorecards(bbbeeList);
       } catch (err) {
         console.warn('Backend loading completed with seed data fallback:', err);
       }
@@ -283,9 +345,21 @@ export default function App() {
         notes: auditData.notes || 'Calibrated under standard matrix framework.',
         actionPlan: auditData.actionPlan || '90-day growth roadmap.',
         status: 'completed',
+        assignedToEmployee: auditData.assignedToEmployee ?? true,
+        optionalEvaluationEnabled: auditData.optionalEvaluationEnabled ?? false,
+        evaluationPrompt: auditData.evaluationPrompt || '',
         createdAt: new Date().toISOString()
       };
       setMatrixAudits(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateMatrixAudit = async (id: string, data: Partial<MatrixAuditRecord>) => {
+    try {
+      const updated = await api.updateMatrixAudit(id, data);
+      setMatrixAudits(prev => prev.map(m => m.id === id ? updated : m));
+    } catch {
+      setMatrixAudits(prev => prev.map(m => m.id === id ? { ...m, ...data } : m));
     }
   };
 
@@ -328,6 +402,191 @@ export default function App() {
     }
   };
 
+  // Super Admin Governance, Portal Users, Property, KPIs, Onboarding & Org Chart Handlers
+  const handleAddPortalUser = async (user: Partial<PortalUserAccount>) => {
+    try {
+      const created = await api.createPortalUser(user);
+      setPortalUsers(prev => [created, ...prev]);
+    } catch {
+      const fallback: PortalUserAccount = {
+        id: `pu_${Date.now()}`,
+        employeeId: user.employeeId || '',
+        employeeName: user.employeeName || 'Assigned Employee',
+        companyId: user.companyId || selectedCompany.id,
+        usernameOrEmail: user.usernameOrEmail || '',
+        portalPassword: user.portalPassword || 'Welcome@2026!',
+        accountStatus: user.accountStatus || 'Active',
+        lastPasswordReset: new Date().toISOString().split('T')[0],
+        optionalExtras: user.optionalExtras || {
+          enableKpi: true,
+          enableOnboarding: true,
+          enableMatrixEvaluation: true,
+          enableCompanyProperty: true,
+          enableOrgChart: true,
+          enableOneOnOneBooking: true,
+          enableLeaveApplication: true
+        }
+      };
+      setPortalUsers(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdatePortalUser = async (id: string, data: Partial<PortalUserAccount>) => {
+    try {
+      const updated = await api.updatePortalUser(id, data);
+      setPortalUsers(prev => prev.map(u => u.id === id ? updated : u));
+    } catch {
+      setPortalUsers(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
+    }
+  };
+
+  const handleAddCompanyProperty = async (prop: Partial<CompanyPropertyAssignment>) => {
+    try {
+      const created = await api.createCompanyProperty(prop);
+      setCompanyProperties(prev => [created, ...prev]);
+      const vaultDoc: EmployeeDocument = {
+        id: `doc_prop_${Date.now()}`,
+        employeeId: prop.employeeId || '',
+        companyId: prop.companyId || selectedCompany.id,
+        title: `Property Agreement: ${prop.itemName} (${prop.assetTag})`,
+        category: 'Contract',
+        fileType: 'PDF',
+        uploadedAt: prop.assignedDate || new Date().toISOString().split('T')[0],
+        fileSize: '1.2 MB',
+        status: 'Valid'
+      };
+      setDocuments(prev => [vaultDoc, ...prev]);
+    } catch {
+      const fallback: CompanyPropertyAssignment = {
+        id: `prop_${Date.now()}`,
+        employeeId: prop.employeeId || '',
+        employeeName: prop.employeeName || 'Assigned Employee',
+        companyId: prop.companyId || selectedCompany.id,
+        itemName: prop.itemName || 'Company Asset',
+        category: prop.category || 'Laptop / IT Hardware',
+        assetTag: prop.assetTag || `INS-ZA-${Date.now().toString().slice(-4)}`,
+        insurancePolicyAndCoverage: prop.insurancePolicyAndCoverage || 'Santam Commercial All-Risk Policy',
+        insuredValueZar: prop.insuredValueZar ?? 25000,
+        lengthOfUse: prop.lengthOfUse || '24 Months (Duration of Employment)',
+        assignedDate: prop.assignedDate || new Date().toISOString().split('T')[0],
+        returnDueDate: prop.returnDueDate || 'Upon Termination',
+        agreementTitle: prop.agreementTitle || 'Company Asset Custodianship & Insurance Agreement',
+        agreementText: prop.agreementText || 'Standard Company Asset Custodianship & Insurance Agreement.',
+        acknowledgedByEmployee: false,
+        assignedByAdmin: prop.assignedByAdmin || 'Practice Super Admin'
+      };
+      setCompanyProperties(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleAcknowledgeCompanyProperty = async (id: string) => {
+    const ackDate = new Date().toISOString().split('T')[0];
+    try {
+      const updated = await api.acknowledgeCompanyProperty(id);
+      setCompanyProperties(prev => prev.map(p => p.id === id ? updated : p));
+    } catch {
+      setCompanyProperties(prev => prev.map(p => p.id === id ? { ...p, acknowledgedByEmployee: true, acknowledgedAt: ackDate } : p));
+    }
+  };
+
+  const handleAddEmployeeKpi = async (kpi: Partial<EmployeeKpiItem>) => {
+    try {
+      const created = await api.createEmployeeKpi(kpi);
+      setEmployeeKpis(prev => [created, ...prev]);
+    } catch {
+      const fallback: EmployeeKpiItem = {
+        id: `kpi_${Date.now()}`,
+        employeeId: kpi.employeeId || '',
+        employeeName: kpi.employeeName || 'Assigned Employee',
+        companyId: kpi.companyId || selectedCompany.id,
+        period: kpi.period || 'Q2 2026',
+        kpiTitle: kpi.kpiTitle || 'Quarterly Performance Objective',
+        targetMetric: kpi.targetMetric || '100% Target Completion',
+        weightPercent: kpi.weightPercent ?? 25,
+        employeeSelfRating: 3,
+        employeeAnswerAndEvidence: '',
+        status: 'Pending Employee Input',
+        updatedAt: new Date().toISOString().split('T')[0]
+      };
+      setEmployeeKpis(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateEmployeeKpi = async (id: string, data: Partial<EmployeeKpiItem>) => {
+    try {
+      const updated = await api.updateEmployeeKpi(id, data);
+      setEmployeeKpis(prev => prev.map(k => k.id === id ? updated : k));
+    } catch {
+      setEmployeeKpis(prev => prev.map(k => k.id === id ? { ...k, ...data } : k));
+    }
+  };
+
+  const handleAddOnboardingTask = async (task: Partial<EmployeeOnboardingTask>) => {
+    try {
+      const created = await api.createOnboardingTask(task);
+      setOnboardingTasks(prev => [created, ...prev]);
+    } catch {
+      const fallback: EmployeeOnboardingTask = {
+        id: `ob_${Date.now()}`,
+        employeeId: task.employeeId || '',
+        employeeName: task.employeeName || 'Assigned Employee',
+        companyId: task.companyId || selectedCompany.id,
+        stepCategory: task.stepCategory || 'Statutory & POPIA',
+        title: task.title || 'Onboarding Requirement',
+        instructions: task.instructions || '',
+        requiresAnswer: task.requiresAnswer ?? true,
+        employeeAnswer: '',
+        completed: false
+      };
+      setOnboardingTasks(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateOnboardingTask = async (id: string, data: Partial<EmployeeOnboardingTask>) => {
+    try {
+      const updated = await api.updateOnboardingTask(id, data);
+      setOnboardingTasks(prev => prev.map(t => t.id === id ? updated : t));
+    } catch {
+      setOnboardingTasks(prev => prev.map(t => t.id === id ? { ...t, ...data } : t));
+    }
+  };
+
+  const handleAddOrgChartNode = async (node: Partial<OrgChartNode>) => {
+    try {
+      const created = await api.createOrgChartNode(node);
+      setOrgChartNodes(prev => [...prev, created]);
+    } catch {
+      const fallback: OrgChartNode = {
+        id: `org_${Date.now()}`,
+        companyId: node.companyId || selectedCompany.id,
+        employeeId: node.employeeId,
+        name: node.name || 'New Position',
+        jobTitle: node.jobTitle || 'Team Member',
+        department: node.department || 'Operations',
+        tierLevel: node.tierLevel ?? 2,
+        reportsToNodeId: node.reportsToNodeId ?? null,
+        location: node.location || 'Johannesburg'
+      };
+      setOrgChartNodes(prev => [...prev, fallback]);
+    }
+  };
+
+  const handleUpdateOrgChartNode = async (id: string, data: Partial<OrgChartNode>) => {
+    try {
+      const updated = await api.updateOrgChartNode(id, data);
+      setOrgChartNodes(prev => prev.map(n => n.id === id ? updated : n));
+    } catch {
+      setOrgChartNodes(prev => prev.map(n => n.id === id ? { ...n, ...data } : n));
+    }
+  };
+
+  const handleDeleteOrgChartNode = async (id: string) => {
+    try {
+      await api.deleteOrgChartNode(id);
+    } catch {}
+    setOrgChartNodes(prev => prev.filter(n => n.id !== id));
+  };
+
   // Handlers for state mutations
   const handleAddCompany = async (newComp: Partial<Company>) => {
     try {
@@ -344,6 +603,68 @@ export default function App() {
       };
       setCompanies(prev => [...prev, fallback]);
       setSelectedCompanyId(fallback.id);
+    }
+  };
+
+  const handleUpdateCompany = async (id: string, data: Partial<Company>) => {
+    try {
+      const updated = await api.updateCompany(id, data);
+      setCompanies(prev => prev.map(c => c.id === id ? updated : c));
+    } catch {
+      setCompanies(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+    }
+  };
+
+  const handleAddSetaRecord = async (rec: Partial<SetaTrainingRecord>) => {
+    try {
+      const created = await api.createSetaRecord(rec);
+      setSetaRecords(prev => [created, ...prev]);
+    } catch {
+      const fallback: SetaTrainingRecord = {
+        id: `seta_${Date.now()}`,
+        companyId: rec.companyId || selectedCompany.id,
+        employeeId: rec.employeeId || '',
+        employeeName: rec.employeeName || 'Assigned Employee',
+        beeRaceGroup: rec.beeRaceGroup || 'African',
+        gender: rec.gender || 'Male',
+        courseOrProgramTitle: rec.courseOrProgramTitle || 'SETA Programme',
+        programType: rec.programType || 'SETA Learnership (18.1 Employed)',
+        nqfLevel: rec.nqfLevel || 'NQF Level 5',
+        setaCode: rec.setaCode || 'SETA-2026',
+        costSpendZar: rec.costSpendZar ?? 35000,
+        MandatoryGrantClaimableZar: rec.MandatoryGrantClaimableZar ?? 14000,
+        includedInWsp: true,
+        completedForAtr: false,
+        bbbeeCategoryCode: rec.bbbeeCategoryCode || 'Category C (Learnerships)',
+        status: rec.status || 'In Progress'
+      };
+      setSetaRecords(prev => [fallback, ...prev]);
+    }
+  };
+
+  const handleUpdateSetaRecord = async (id: string, data: Partial<SetaTrainingRecord>) => {
+    try {
+      const updated = await api.updateSetaRecord(id, data);
+      setSetaRecords(prev => prev.map(r => r.id === id ? updated : r));
+    } catch {
+      setSetaRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r));
+    }
+  };
+
+  const handleUpdateBbbeeScorecard = async (companyId: string, data: Partial<BbbeeScorecardProfile>) => {
+    try {
+      const updated = await api.updateBbbeeScorecard(companyId, data);
+      setBbbeeScorecards(prev => {
+        const exists = prev.some(s => s.companyId === companyId);
+        return exists ? prev.map(s => s.companyId === companyId ? updated : s) : [...prev, updated];
+      });
+    } catch {
+      setBbbeeScorecards(prev => {
+        const exists = prev.some(s => s.companyId === companyId);
+        return exists
+          ? prev.map(s => s.companyId === companyId ? { ...s, ...data } : s)
+          : [...prev, { companyId, ...data } as BbbeeScorecardProfile];
+      });
     }
   };
 
@@ -564,7 +885,7 @@ export default function App() {
                     </span>
                   </h2>
                   <p className="text-xs text-slate-300">
-                    Confidential portal for {selectedCompany.name} staff to book 1-on-1 sessions, request statutory leave, and view verified payslips.
+                    Confidential portal for {selectedCompany.name} staff to complete KPIs &amp; onboarding, view read-only property agreements &amp; org hierarchy, and manage leave.
                   </p>
                 </div>
               </div>
@@ -593,10 +914,20 @@ export default function App() {
               documents={documents}
               bookings={bookings}
               blockedSlots={blockedSlots}
+              portalUsers={portalUsers}
+              companyProperties={companyProperties}
+              employeeKpis={employeeKpis}
+              onboardingTasks={onboardingTasks}
+              orgChartNodes={orgChartNodes}
+              matrixAudits={matrixAudits}
               onApplyLeave={handleAddLeave}
               onUpdateEmployee={handleUpdateEmployee}
               onBookSession={handleAddBooking}
               onCancelBooking={(id) => handleUpdateBookingStatus(id, 'cancelled')}
+              onUpdateEmployeeKpi={handleUpdateEmployeeKpi}
+              onUpdateOnboardingTask={handleUpdateOnboardingTask}
+              onAcknowledgeProperty={handleAcknowledgeCompanyProperty}
+              onSubmitMatrixSelfEvaluation={handleUpdateMatrixAudit}
             />
           </div>
         </div>
@@ -615,6 +946,7 @@ export default function App() {
             onSelectRole={(r) => {
               setCurrentRole(r);
               if (r === 'employee') setCurrentView('ess');
+              if (r === 'super_admin') setActiveTab('superadmin');
             }}
             activeTab={activeTab}
             onSelectTab={(t) => setActiveTab(t)}
@@ -659,6 +991,28 @@ export default function App() {
                 />
               )}
 
+              {activeTab === 'plugins' && (
+                <ReportingPluginsModule
+                  selectedCompany={selectedCompany}
+                  employees={employees}
+                  disciplinaryCases={disciplinaryCases}
+                  leaveRequests={leaveRequests}
+                  documents={documents}
+                  setaRecords={setaRecords}
+                  bbbeeScorecards={bbbeeScorecards}
+                  onUpdateCompany={handleUpdateCompany}
+                  onUpdateEmployee={handleUpdateEmployee}
+                  onAddDisciplinaryCase={handleAddDisciplinaryCase}
+                  onAddSetaRecord={handleAddSetaRecord}
+                  onUpdateSetaRecord={handleUpdateSetaRecord}
+                  onUpdateBbbeeScorecard={handleUpdateBbbeeScorecard}
+                  onUploadDocument={handleUploadDocument}
+                  onOpenAiAssistantWithPrompt={(prompt, mode) => {
+                    handleOpenAiWithPrompt(prompt, mode);
+                  }}
+                />
+              )}
+
               {activeTab === 'calendar' && (
                 <ConsultantCalendarModule
                   selectedCompany={selectedCompany}
@@ -686,10 +1040,31 @@ export default function App() {
                   diagnosticResults={diagnosticResults}
                   currentRole={currentRole}
                   onAddMatrixAudit={handleAddMatrixAudit}
+                  onUpdateMatrixAudit={handleUpdateMatrixAudit}
                   onAddDiagnosticTest={handleAddDiagnosticTest}
                   onOpenAiAssistantWithContext={(context: string) => {
                     handleOpenAiWithPrompt(context, 'policy_audit');
                   }}
+                />
+              )}
+
+              {activeTab === 'superadmin' && (
+                <SuperAdminGovernanceModule
+                  selectedCompany={selectedCompany}
+                  employees={employees}
+                  portalUsers={portalUsers}
+                  companyProperties={companyProperties}
+                  employeeKpis={employeeKpis}
+                  onboardingTasks={onboardingTasks}
+                  orgChartNodes={orgChartNodes}
+                  onAddPortalUser={handleAddPortalUser}
+                  onUpdatePortalUser={handleUpdatePortalUser}
+                  onAddCompanyProperty={handleAddCompanyProperty}
+                  onAddEmployeeKpi={handleAddEmployeeKpi}
+                  onAddOnboardingTask={handleAddOnboardingTask}
+                  onAddOrgChartNode={handleAddOrgChartNode}
+                  onUpdateOrgChartNode={handleUpdateOrgChartNode}
+                  onDeleteOrgChartNode={handleDeleteOrgChartNode}
                 />
               )}
 

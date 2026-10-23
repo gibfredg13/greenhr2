@@ -1,5 +1,24 @@
 export type UserRole = 'super_admin' | 'consultant' | 'company_admin' | 'manager' | 'employee';
 
+export type ReportingPluginId =
+  | 'employment_equity'
+  | 'bcea_compliance'
+  | 'popia_compliance'
+  | 'integrated_leave'
+  | 'disciplinary_labour'
+  | 'skills_seta'
+  | 'bbbee_support';
+
+export type BeeRaceGroup = 'African' | 'Coloured' | 'Indian' | 'White' | 'Foreign National';
+
+export type OccupationalLevel =
+  | 'Top Management'
+  | 'Senior Management'
+  | 'Professionally Qualified'
+  | 'Skilled Technical'
+  | 'Semi-Skilled'
+  | 'Unskilled';
+
 export interface Company {
   id: string;
   name: string;
@@ -20,6 +39,8 @@ export interface Company {
   monthlyRetainerZar: number;
   hourlyRateZar: number;
   createdAt: string;
+  enabledReportingPlugins?: ReportingPluginId[];
+  setaName?: string;
 }
 
 export interface Employee {
@@ -54,10 +75,24 @@ export interface Employee {
     familyResponsibility: number; // 3 days per annual cycle
     parental: number; // 10 consecutive days
     maternity: number; // 4 consecutive months
+    adoption?: number; // 10 consecutive weeks (BCEA Section 25B)
     study: number;
   };
   fileCompletenessScore: number; // 0 - 100%
   status: 'Active' | 'On Leave' | 'Suspended' | 'Resigned' | 'Terminated';
+
+  // B-BBEE Race Classification & Recognition Score + Employment Equity & Plugin Overrides
+  beeRaceGroup?: BeeRaceGroup;
+  gender?: 'Male' | 'Female';
+  hasDisability?: boolean;
+  occupationalLevel?: OccupationalLevel;
+  beeRaceScorePoints?: number; // Individual B-BBEE Scorecard Recognition Points (0 - 10 scale)
+  weeklyHoursScheduled?: number; // BCEA max 45 ordinary hours/week
+  monthlyOvertimeHours?: number; // BCEA max 10 hours/week (~40/month)
+  sundayPublicHolidayShifts?: number;
+  popiaConsentSigned?: boolean;
+  popiaConsentDate?: string;
+  enabledReportingPlugins?: ReportingPluginId[];
 }
 
 export type StatuteCategory = 'BCEA' | 'LRA' | 'Labour Relations Act' | 'POPIA' | 'COIDA' | 'UIF' | 'Employment Equity' | 'Skills Development' | 'B-BBEE';
@@ -110,7 +145,7 @@ export interface LeaveRequest {
   companyId: string;
   employeeId: string;
   employeeName: string;
-  leaveType: 'Annual' | 'Sick' | 'Family Responsibility' | 'Parental' | 'Maternity' | 'Study';
+  leaveType: 'Annual' | 'Sick' | 'Family Responsibility' | 'Parental' | 'Maternity' | 'Adoption' | 'Study';
   startDate: string;
   endDate: string;
   daysCount: number;
@@ -290,6 +325,15 @@ export interface MatrixAuditRecord {
   statutoryBasis?: string;
   notes?: string;
   actionPlan?: string;
+
+  // Assignable to Employee with Optional Evaluation
+  assignedToEmployee?: boolean;
+  optionalEvaluationEnabled?: boolean;
+  evaluationPrompt?: string;
+  employeeSelfEvaluationResponse?: string;
+  employeeSelfScoreX?: number;
+  employeeSelfScoreY?: number;
+  employeeEvaluationSubmittedAt?: string;
 }
 
 // Standardized Testing and Diagnostic Frameworks
@@ -363,3 +407,137 @@ export interface StandardizedTestResult {
   categoryScores?: Record<string, number>;
   administeredBy?: string;
 }
+
+// Click On/Off Optional Extras per Employee in Portal
+export interface EmployeePortalFeatureFlags {
+  enableKpi: boolean;
+  enableOnboarding: boolean;
+  enableMatrixEvaluation: boolean;
+  enableCompanyProperty: boolean;
+  enableOrgChart: boolean;
+  enableOneOnOneBooking: boolean;
+  enableLeaveApplication: boolean;
+}
+
+// Portal User Account & Credentials assigned to an Employee
+export interface PortalUserAccount {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName: string;
+  usernameOrEmail: string;
+  portalPassword: string;
+  lastPasswordReset: string;
+  accountStatus: 'Active' | 'Suspended' | 'Pending Activation';
+  optionalExtras: EmployeePortalFeatureFlags;
+}
+
+// Company Property Assigned to an Employee (Viewable to Employee Only, Non-Editable by Employee)
+export interface CompanyPropertyAssignment {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName: string;
+  itemName: string;
+  category: 'Laptop / IT Hardware' | 'Company Vehicle' | 'Mobile Device / SIM' | 'Tools & Machinery' | 'Access & Security Card';
+  assetTag: string;
+  insurancePolicyAndCoverage: string;
+  insuredValueZar: number;
+  lengthOfUse: string;
+  assignedDate: string;
+  returnDueDate: string;
+  agreementTitle: string;
+  agreementText: string;
+  acknowledgedByEmployee: boolean;
+  acknowledgedAt?: string;
+  assignedByAdmin: string;
+}
+
+// Employee KPI & Self-Evaluation Item
+export interface EmployeeKpiItem {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName: string;
+  period: string;
+  kpiTitle: string;
+  targetMetric: string;
+  weightPercent: number;
+  employeeSelfRating: number;
+  employeeAnswerAndEvidence: string;
+  managerScore?: number;
+  status: 'Pending Employee Input' | 'Submitted by Employee' | 'Calibrated & Signed Off';
+  updatedAt: string;
+}
+
+// Employee Onboarding Task & Question Item
+export interface EmployeeOnboardingTask {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName: string;
+  stepCategory: 'Statutory & POPIA' | 'Contract & Policies' | 'Role & Safety Induction' | 'IT & Systems';
+  title: string;
+  instructions: string;
+  requiresAnswer: boolean;
+  employeeAnswer?: string;
+  completed: boolean;
+  completedAt?: string;
+}
+
+// Hierarchical Org Chart Node (Editable by Admin, Read-Only for Employee)
+export interface OrgChartNode {
+  id: string;
+  companyId: string;
+  employeeId?: string;
+  name: string;
+  jobTitle: string;
+  department: string;
+  tierLevel: 1 | 2 | 3 | 4;
+  reportsToNodeId: string | null;
+  location: string;
+}
+
+// Skills Development & SETA Tracking (WSP / ATR / Learnerships)
+export interface SetaTrainingRecord {
+  id: string;
+  companyId: string;
+  employeeId: string;
+  employeeName: string;
+  beeRaceGroup: BeeRaceGroup;
+  gender: 'Male' | 'Female';
+  courseOrProgramTitle: string;
+  programType: 'Accredited Course' | 'SETA Learnership (18.1 Employed)' | 'SETA Learnership (18.2 Unemployed)' | 'Skills Matrix Intervention' | 'Workplace Bursary';
+  nqfLevel: string;
+  setaCode: string;
+  costSpendZar: number;
+  MandatoryGrantClaimableZar: number;
+  includedInWsp: boolean;
+  completedForAtr: boolean;
+  bbbeeCategoryCode: 'Category A (Bursaries)' | 'Category B (Internships)' | 'Category C (Learnerships)' | 'Category D (Short Courses)';
+  status: 'Completed' | 'In Progress' | 'Planned (WSP)';
+  completionDate?: string;
+}
+
+// B-BBEE 5-Element Scorecard & Evidence Record per Company
+export interface BbbeeScorecardProfile {
+  companyId: string;
+  financialYear: string;
+  enterpriseCategory: 'Generic Enterprise (>R50m)' | 'Qualifying Small Enterprise (QSE R10m-R50m)' | 'Exempted Micro Enterprise (EME <R10m)';
+  ownershipScore: number; // Max 25
+  managementControlScore: number; // Max 19 (includes Employment Equity)
+  skillsDevelopmentScore: number; // Max 20 (+5 bonus)
+  enterpriseSupplierDevScore: number; // Max 40 (Preferential Procurement + Enterprise/Supplier Dev)
+  socioEconomicDevScore: number; // Max 5
+  yesInitiativeBonus: number; // 0 - 5
+  priorityElementsSubminimumMet: boolean;
+  verifiedEvidenceItems: {
+    id: string;
+    element: 'Ownership' | 'Management Control & EE' | 'Skills Development' | 'Preferential Procurement & ESD' | 'Socio-Economic Development';
+    documentTitle: string;
+    verificationStatus: 'Verified for Audit' | 'Pending SANAS Review' | 'Action Required';
+    updatedAt: string;
+  }[];
+}
+
+

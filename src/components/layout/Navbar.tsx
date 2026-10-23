@@ -40,45 +40,41 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Zone 2: 4-5 clean single-line text navigation links */}
           {currentView === 'public' ? (
             <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-600">
+              <a href="#hraas-difference" className="text-emerald-700 font-semibold hover:text-emerald-800 transition-colors whitespace-nowrap shrink-0">
+                Why HRaaS
+              </a>
               <a href="#features" className="hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0">
-                Features
+                Managed HR Suite
               </a>
               <a href="#compliance" className="hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0">
                 SA Compliance
               </a>
               <a href="#how-it-works" className="hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0">
-                How It Works
+                How We Support You
               </a>
               <a href="#pricing" className="hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0">
-                Pricing (ZAR)
-              </a>
-              <a href="#industries" className="hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0">
-                Industries
+                HRaaS Plans (ZAR)
               </a>
             </nav>
           ) : currentView === 'ess' ? (
             <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium">
               <span className="flex items-center gap-1.5 text-indigo-700 font-semibold bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">
                 <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
-                Employee Self-Service (ESS) Portal
+                HRaaS Employee Experience Portal (ESS)
               </span>
               <span aria-hidden="true" className="text-slate-300">·</span>
-              <span>BCEA Leave</span>
+              <span>1-on-1 HR Specialist Care</span>
               <span aria-hidden="true" className="text-slate-300">·</span>
-              <span>1-on-1 Sessions</span>
-              <span aria-hidden="true" className="text-slate-300">·</span>
-              <span>Dossier &amp; Payslips</span>
+              <span>BCEA Leave &amp; Dossier</span>
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium">
               <span className="flex items-center gap-1.5 text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                South African Labour Compliance Active
+                HRaaS Practice Hub: Platform + Dedicated SA Specialists
               </span>
               <span aria-hidden="true" className="text-slate-300">·</span>
-              <span>POPIA Certified Architecture</span>
-              <span aria-hidden="true" className="text-slate-300">·</span>
-              <span>Multi-Tenant Vault</span>
+              <span>POPIA Certified</span>
             </div>
           )}
 

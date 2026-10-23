@@ -129,8 +129,14 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
       familyResponsibility: 3,
       parental: 10,
       maternity: 0,
+      adoption: 10,
       study: 2
-    }
+    },
+    beeRaceGroup: 'African',
+    gender: 'Female',
+    hasDisability: false,
+    occupationalLevel: 'Skilled Technical',
+    beeRaceScorePoints: 9.5
   });
 
   const companyEmployees = employees.filter(e => e.companyId === selectedCompany.id);
@@ -308,6 +314,7 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
                 <th className="py-3.5 px-4">Employee</th>
                 <th className="py-3.5 px-4">SA ID / Tax No</th>
                 <th className="py-3.5 px-4">Role &amp; Department</th>
+                <th className="py-3.5 px-4">B-BBEE Race &amp; Score</th>
                 <th className="py-3.5 px-4">Contract</th>
                 <th className="py-3.5 px-4 text-right">Gross Salary (ZAR)</th>
                 <th className="py-3.5 px-4 text-center">File Health</th>
@@ -317,7 +324,7 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
             <tbody className="divide-y divide-slate-100">
               {filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-400">
+                  <td colSpan={8} className="py-8 text-center text-slate-400">
                     No employee records match the selected filter.
                   </td>
                 </tr>
@@ -339,6 +346,14 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
                     <td className="py-3 px-4">
                       <div className="text-slate-900 font-medium">{emp.jobTitle}</div>
                       <div className="text-slate-500 text-[11px]">{emp.department}</div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-semibold text-slate-900">
+                        {emp.beeRaceGroup || 'African'} ({emp.gender || 'Male'})
+                      </div>
+                      <div className="text-[11px] font-mono text-emerald-700 font-bold">
+                        Score: {(emp.beeRaceScorePoints ?? 8.5).toFixed(1)} / 10 pts
+                      </div>
                     </td>
                     <td className="py-3 px-4">
                       <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
@@ -475,31 +490,120 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
 
             {/* TAB 1: Profile & Statutory */}
             {modalTab === 'profile' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
-                    Statutory &amp; Identity Details
-                  </h4>
-                  <div className="space-y-1.5">
-                    <div><span className="text-slate-500">RSA ID Number:</span> <strong className="font-mono text-slate-800">{selectedEmployee.idNumber}</strong></div>
-                    <div><span className="text-slate-500">SARS Tax Ref:</span> <strong className="font-mono text-slate-800">{selectedEmployee.taxNumber}</strong></div>
-                    <div><span className="text-slate-500">Contract Type:</span> <strong className="text-slate-800">{selectedEmployee.contractType}</strong></div>
-                    <div><span className="text-slate-500">Commencement Date:</span> <strong className="text-slate-800">{selectedEmployee.startDate}</strong></div>
-                    <div><span className="text-slate-500">Gross Remuneration:</span> <strong className="font-mono text-emerald-700">R {selectedEmployee.salaryZar.toLocaleString()} / mo</strong></div>
+              <div className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                      Statutory &amp; Identity Details
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div><span className="text-slate-500">RSA ID Number:</span> <strong className="font-mono text-slate-800">{selectedEmployee.idNumber}</strong></div>
+                      <div><span className="text-slate-500">SARS Tax Ref:</span> <strong className="font-mono text-slate-800">{selectedEmployee.taxNumber}</strong></div>
+                      <div><span className="text-slate-500">Contract Type:</span> <strong className="text-slate-800">{selectedEmployee.contractType}</strong></div>
+                      <div><span className="text-slate-500">Commencement Date:</span> <strong className="text-slate-800">{selectedEmployee.startDate}</strong></div>
+                      <div><span className="text-slate-500">Gross Remuneration:</span> <strong className="font-mono text-emerald-700">R {selectedEmployee.salaryZar.toLocaleString()} / mo</strong></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                      Contact &amp; Emergency Next of Kin
+                    </h4>
+                    <div className="space-y-1.5">
+                      <div><span className="text-slate-500">Email:</span> <span className="text-slate-800">{selectedEmployee.email}</span></div>
+                      <div><span className="text-slate-500">Cell:</span> <span className="text-slate-800">{selectedEmployee.phone}</span></div>
+                      <div><span className="text-slate-500">Address:</span> <span className="text-slate-800">{selectedEmployee.address}</span></div>
+                      <div className="pt-1 border-t border-slate-200">
+                        <span className="text-slate-500">Emergency Contact:</span>
+                        <div className="font-semibold text-slate-800">{selectedEmployee.emergencyContact.name} ({selectedEmployee.emergencyContact.relationship}) &middot; {selectedEmployee.emergencyContact.phone}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
-                    Contact &amp; Emergency Next of Kin
-                  </h4>
-                  <div className="space-y-1.5">
-                    <div><span className="text-slate-500">Email:</span> <span className="text-slate-800">{selectedEmployee.email}</span></div>
-                    <div><span className="text-slate-500">Cell:</span> <span className="text-slate-800">{selectedEmployee.phone}</span></div>
-                    <div><span className="text-slate-500">Address:</span> <span className="text-slate-800">{selectedEmployee.address}</span></div>
-                    <div className="pt-1 border-t border-slate-200">
-                      <span className="text-slate-500">Emergency Contact:</span>
-                      <div className="font-semibold text-slate-800">{selectedEmployee.emergencyContact.name} ({selectedEmployee.emergencyContact.relationship}) &middot; {selectedEmployee.emergencyContact.phone}</div>
+                {/* B-BBEE Race Classification & Recognition Score Editor */}
+                <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-emerald-900 text-xs">
+                      B-BBEE Race Classification, EE Occupational Level &amp; Individual Race Score
+                    </h4>
+                    <span className="font-mono font-bold text-emerald-800">
+                      Current Score: {(selectedEmployee.beeRaceScorePoints ?? 8.5).toFixed(1)} / 10.0 pts
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">B-BBEE Race Group</label>
+                      <select
+                        value={selectedEmployee.beeRaceGroup || 'African'}
+                        onChange={(e) => {
+                          const updated = { ...selectedEmployee, beeRaceGroup: e.target.value as any };
+                          setSelectedEmployee(updated);
+                          onUpdateEmployee(selectedEmployee.id, { beeRaceGroup: e.target.value as any });
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold"
+                      >
+                        <option value="African">African</option>
+                        <option value="Coloured">Coloured</option>
+                        <option value="Indian">Indian</option>
+                        <option value="White">White</option>
+                        <option value="Foreign National">Foreign National</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Gender</label>
+                      <select
+                        value={selectedEmployee.gender || 'Male'}
+                        onChange={(e) => {
+                          const updated = { ...selectedEmployee, gender: e.target.value as any };
+                          setSelectedEmployee(updated);
+                          onUpdateEmployee(selectedEmployee.id, { gender: e.target.value as any });
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold"
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">EE Occupational Level</label>
+                      <select
+                        value={selectedEmployee.occupationalLevel || 'Skilled Technical'}
+                        onChange={(e) => {
+                          const updated = { ...selectedEmployee, occupationalLevel: e.target.value as any };
+                          setSelectedEmployee(updated);
+                          onUpdateEmployee(selectedEmployee.id, { occupationalLevel: e.target.value as any });
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold"
+                      >
+                        <option value="Top Management">Top Management</option>
+                        <option value="Senior Management">Senior Management</option>
+                        <option value="Professionally Qualified">Professionally Qualified</option>
+                        <option value="Skilled Technical">Skilled Technical</option>
+                        <option value="Semi-Skilled">Semi-Skilled</option>
+                        <option value="Unskilled">Unskilled</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">B-BBEE Race Score (0–10)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={10}
+                        step={0.5}
+                        value={selectedEmployee.beeRaceScorePoints ?? 8.5}
+                        onChange={(e) => {
+                          const score = Math.min(10, Math.max(0, Number(e.target.value)));
+                          const updated = { ...selectedEmployee, beeRaceScorePoints: score };
+                          setSelectedEmployee(updated);
+                          onUpdateEmployee(selectedEmployee.id, { beeRaceScorePoints: score });
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white font-mono font-bold text-emerald-700"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1302,6 +1406,34 @@ export const EmployeeModule: React.FC<EmployeeModuleProps> = ({
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">B-BBEE Race Classification *</label>
+                  <select
+                    value={formData.beeRaceGroup || 'African'}
+                    onChange={(e) => setFormData({ ...formData, beeRaceGroup: e.target.value as any })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="African">African (Black Designated)</option>
+                    <option value="Coloured">Coloured (Black Designated)</option>
+                    <option value="Indian">Indian (Black Designated)</option>
+                    <option value="White">White</option>
+                    <option value="Foreign National">Foreign National</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">B-BBEE Race Score Points (0–10)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    step={0.5}
+                    value={formData.beeRaceScorePoints ?? 9.5}
+                    onChange={(e) => setFormData({ ...formData, beeRaceScorePoints: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                   />
                 </div>
               </div>

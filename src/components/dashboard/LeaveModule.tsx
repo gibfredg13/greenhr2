@@ -111,7 +111,7 @@ export const LeaveModule: React.FC<LeaveModuleProps> = ({
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {['All', 'Annual', 'Sick', 'Family Responsibility', 'Parental', 'Maternity', 'Study'].map(type => (
+        {['All', 'Annual', 'Sick', 'Family Responsibility', 'Parental', 'Maternity', 'Adoption', 'Study'].map(type => (
           <button
             key={type}
             onClick={() => setFilterType(type)}
@@ -272,6 +272,7 @@ export const LeaveModule: React.FC<LeaveModuleProps> = ({
                       <option>Family Responsibility</option>
                       <option>Parental</option>
                       <option>Maternity</option>
+                      <option>Adoption</option>
                       <option>Study</option>
                     </select>
                   </div>

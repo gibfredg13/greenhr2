@@ -50,20 +50,24 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Practice Context Bar */}
+      {/* Top Banner / HRaaS Practice Context Bar */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
+            <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+              HRaaS Full-Service Retainer Active
+            </span>
+            <span>&middot;</span>
             <span>Client Workspace:</span>
             <span className="text-emerald-700 font-bold">{selectedCompany.name}</span>
             <span>&middot;</span>
             <span className="font-mono text-slate-600">{selectedCompany.registrationNumber}</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            South African Practice Command Center
+            South African HRaaS Command Center
           </h1>
           <p className="text-xs text-slate-600 mt-0.5">
-            Real-time statutory compliance, labour relations, workforce roster, and consultant utilization.
+            Combining enterprise HR tools with dedicated SABPP-accredited specialists, 1-on-1 employee care, matrix audits, and managed statutory compliance.
           </p>
         </div>
 
@@ -73,7 +77,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors shadow-sm"
           >
             <Clock className="w-3.5 h-3.5" />
-            Log Billable Time
+            Log HRaaS Specialist Time
           </button>
         </div>
       </div>

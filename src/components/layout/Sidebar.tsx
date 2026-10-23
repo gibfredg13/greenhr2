@@ -13,7 +13,9 @@ import {
   Building2,
   ChevronRight,
   Calendar,
-  Target
+  Target,
+  ShieldCheck,
+  Blocks
 } from 'lucide-react';
 import { Company, UserRole } from '../../types';
 import { CompanySwitcher } from './CompanySwitcher';
@@ -22,8 +24,10 @@ import { RoleSelector } from './RoleSelector';
 export type DashboardTab =
   | 'overview'
   | 'employees'
+  | 'plugins'
   | 'calendar'
   | 'audits'
+  | 'superadmin'
   | 'compliance'
   | 'disciplinary'
   | 'leave'
@@ -58,8 +62,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems: { id: DashboardTab; label: string; icon: any; count?: number; badge?: string }[] = [
     { id: 'overview', label: 'Executive Dashboard', icon: LayoutDashboard },
     { id: 'employees', label: 'Employee Hub', icon: Users },
+    { id: 'plugins', label: 'Reporting Plugins & B-BBEE', icon: Blocks, badge: '7 Plugins' },
     { id: 'calendar', label: '1-on-1 Sessions Calendar', icon: Calendar, badge: 'Bookings' },
     { id: 'audits', label: 'Matrix Audits & Diagnostics', icon: Target, badge: 'Frameworks' },
+    { id: 'superadmin', label: 'Super Admin & Governance', icon: ShieldCheck, badge: 'Admin' },
     { id: 'compliance', label: 'Statutory Compliance', icon: CalendarCheck, badge: 'SA Law' },
     { id: 'disciplinary', label: 'CCMA & Labour Relations', icon: Scale },
     { id: 'leave', label: 'BCEA Leave Manager', icon: CalendarDays },

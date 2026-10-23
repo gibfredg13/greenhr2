@@ -19,7 +19,14 @@ import {
   INITIAL_SUPERADMIN_SETTINGS,
   INITIAL_MATRIX_AUDITS,
   INITIAL_DIAGNOSTIC_TEST_RESULTS,
-  DIAGNOSTIC_FRAMEWORKS_CATALOG
+  DIAGNOSTIC_FRAMEWORKS_CATALOG,
+  INITIAL_PORTAL_USERS,
+  INITIAL_COMPANY_PROPERTIES,
+  INITIAL_EMPLOYEE_KPIS,
+  INITIAL_ONBOARDING_TASKS,
+  INITIAL_ORG_CHART_NODES,
+  INITIAL_SETA_RECORDS,
+  INITIAL_BBBEE_SCORECARDS
 } from './src/data/seedData.ts';
 import type {
   Company,
@@ -35,7 +42,14 @@ import type {
   EmployeeMeetingRecord,
   SuperadminPermissionSettings,
   MatrixAuditRecord,
-  StandardizedTestResult
+  StandardizedTestResult,
+  PortalUserAccount,
+  CompanyPropertyAssignment,
+  EmployeeKpiItem,
+  EmployeeOnboardingTask,
+  OrgChartNode,
+  SetaTrainingRecord,
+  BbbeeScorecardProfile
 } from './src/types/index.ts';
 
 dotenv.config();
@@ -60,6 +74,13 @@ let meetingRecords: EmployeeMeetingRecord[] = [...INITIAL_MEETING_RECORDS];
 let superadminSettings: SuperadminPermissionSettings = { ...INITIAL_SUPERADMIN_SETTINGS };
 let matrixAudits: MatrixAuditRecord[] = [...INITIAL_MATRIX_AUDITS];
 let diagnosticTestResults: StandardizedTestResult[] = [...INITIAL_DIAGNOSTIC_TEST_RESULTS];
+let portalUsers: PortalUserAccount[] = [...INITIAL_PORTAL_USERS];
+let companyProperties: CompanyPropertyAssignment[] = [...INITIAL_COMPANY_PROPERTIES];
+let employeeKpis: EmployeeKpiItem[] = [...INITIAL_EMPLOYEE_KPIS];
+let onboardingTasks: EmployeeOnboardingTask[] = [...INITIAL_ONBOARDING_TASKS];
+let orgChartNodes: OrgChartNode[] = [...INITIAL_ORG_CHART_NODES];
+let setaRecords: SetaTrainingRecord[] = [...INITIAL_SETA_RECORDS];
+let bbbeeScorecards: BbbeeScorecardProfile[] = [...INITIAL_BBBEE_SCORECARDS];
 
 // Gemini AI Client setup
 const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -92,6 +113,14 @@ app.post('/api/companies', (req: Request, res: Response) => {
   };
   companies.push(newCompany);
   res.status(201).json(newCompany);
+});
+
+app.patch('/api/companies/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = companies.findIndex(c => c.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Company not found' });
+  companies[idx] = { ...companies[idx], ...req.body };
+  res.json(companies[idx]);
 });
 
 // Employees
@@ -594,10 +623,236 @@ app.post('/api/matrix-audits', (req: Request, res: Response) => {
   res.status(201).json(newAudit);
 });
 
+app.patch('/api/matrix-audits/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = matrixAudits.findIndex(a => a.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Matrix audit not found' });
+  matrixAudits[idx] = { ...matrixAudits[idx], ...req.body };
+  res.json(matrixAudits[idx]);
+});
+
 app.delete('/api/matrix-audits/:id', (req: Request, res: Response) => {
   const { id } = req.params;
   matrixAudits = matrixAudits.filter(a => a.id !== id);
   res.json({ success: true });
+});
+
+// ----------------- PORTAL USERS, PASSWORDS & OPTIONAL EXTRAS ----------------- //
+app.get('/api/portal-users', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...portalUsers];
+  if (companyId) results = results.filter(u => u.companyId === companyId);
+  if (employeeId) results = results.filter(u => u.employeeId === employeeId);
+  res.json(results);
+});
+
+app.post('/api/portal-users', (req: Request, res: Response) => {
+  const newUser: PortalUserAccount = {
+    ...req.body,
+    id: `puser_${Date.now()}`,
+    lastPasswordReset: new Date().toISOString().split('T')[0]
+  };
+  portalUsers.unshift(newUser);
+  res.status(201).json(newUser);
+});
+
+app.patch('/api/portal-users/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = portalUsers.findIndex(u => u.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Portal user not found' });
+  portalUsers[idx] = { ...portalUsers[idx], ...req.body };
+  res.json(portalUsers[idx]);
+});
+
+// ----------------- COMPANY PROPERTY ASSIGNMENTS (READ-ONLY TO EMPLOYEE) ----------------- //
+app.get('/api/company-properties', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...companyProperties];
+  if (companyId) results = results.filter(p => p.companyId === companyId);
+  if (employeeId) results = results.filter(p => p.employeeId === employeeId);
+  res.json(results);
+});
+
+app.post('/api/company-properties', (req: Request, res: Response) => {
+  const newProp: CompanyPropertyAssignment = {
+    ...req.body,
+    id: `prop_${Date.now()}`,
+    acknowledgedByEmployee: false
+  };
+  companyProperties.unshift(newProp);
+
+  // Also index as a read-only document in the employee's personnel vault
+  documents.unshift({
+    id: `doc_prop_${Date.now()}`,
+    companyId: newProp.companyId,
+    employeeId: newProp.employeeId,
+    employeeName: newProp.employeeName,
+    category: 'Contract',
+    title: `[View-Only Property Agreement] ${newProp.itemName} (Tag: ${newProp.assetTag})`,
+    fileType: 'PDF',
+    uploadedAt: newProp.assignedDate || new Date().toISOString().split('T')[0],
+    fileSize: '1.1 MB',
+    status: 'Valid'
+  });
+
+  res.status(201).json(newProp);
+});
+
+app.patch('/api/company-properties/:id/acknowledge', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = companyProperties.findIndex(p => p.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Property assignment not found' });
+  companyProperties[idx] = {
+    ...companyProperties[idx],
+    acknowledgedByEmployee: true,
+    acknowledgedAt: new Date().toISOString().split('T')[0]
+  };
+  res.json(companyProperties[idx]);
+});
+
+// ----------------- EMPLOYEE KPIS & SELF-ASSESSMENT ----------------- //
+app.get('/api/kpis', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...employeeKpis];
+  if (companyId) results = results.filter(k => k.companyId === companyId);
+  if (employeeId) results = results.filter(k => k.employeeId === employeeId);
+  res.json(results);
+});
+
+app.post('/api/kpis', (req: Request, res: Response) => {
+  const newKpi: EmployeeKpiItem = {
+    ...req.body,
+    id: `kpi_${Date.now()}`,
+    updatedAt: new Date().toISOString().split('T')[0]
+  };
+  employeeKpis.unshift(newKpi);
+  res.status(201).json(newKpi);
+});
+
+app.patch('/api/kpis/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = employeeKpis.findIndex(k => k.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'KPI item not found' });
+  employeeKpis[idx] = {
+    ...employeeKpis[idx],
+    ...req.body,
+    updatedAt: new Date().toISOString().split('T')[0]
+  };
+  res.json(employeeKpis[idx]);
+});
+
+// ----------------- EMPLOYEE ONBOARDING TASKS & ANSWERS ----------------- //
+app.get('/api/onboarding-tasks', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...onboardingTasks];
+  if (companyId) results = results.filter(t => t.companyId === companyId);
+  if (employeeId) results = results.filter(t => t.employeeId === employeeId);
+  res.json(results);
+});
+
+app.post('/api/onboarding-tasks', (req: Request, res: Response) => {
+  const newTask: EmployeeOnboardingTask = {
+    ...req.body,
+    id: `onb_${Date.now()}`,
+    completed: false
+  };
+  onboardingTasks.unshift(newTask);
+  res.status(201).json(newTask);
+});
+
+app.patch('/api/onboarding-tasks/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = onboardingTasks.findIndex(t => t.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Onboarding task not found' });
+  onboardingTasks[idx] = {
+    ...onboardingTasks[idx],
+    ...req.body,
+    completedAt: req.body.completed ? new Date().toISOString().split('T')[0] : onboardingTasks[idx].completedAt
+  };
+  res.json(onboardingTasks[idx]);
+});
+
+// ----------------- HIERARCHICAL ORG CHART (ADMIN EDITABLE, EMPLOYEE READ-ONLY) ----------------- //
+app.get('/api/org-chart', (req: Request, res: Response) => {
+  const { companyId } = req.query;
+  let results = [...orgChartNodes];
+  if (companyId) results = results.filter(n => n.companyId === companyId);
+  res.json(results);
+});
+
+app.post('/api/org-chart', (req: Request, res: Response) => {
+  const newNode: OrgChartNode = {
+    ...req.body,
+    id: `org_${Date.now()}`
+  };
+  orgChartNodes.push(newNode);
+  res.status(201).json(newNode);
+});
+
+app.patch('/api/org-chart/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = orgChartNodes.findIndex(n => n.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Org chart node not found' });
+  orgChartNodes[idx] = { ...orgChartNodes[idx], ...req.body };
+  res.json(orgChartNodes[idx]);
+});
+
+app.delete('/api/org-chart/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  orgChartNodes = orgChartNodes.filter(n => n.id !== id);
+  // Re-parent any child nodes whose parent was deleted
+  orgChartNodes = orgChartNodes.map(n => n.reportsToNodeId === id ? { ...n, reportsToNodeId: null } : n);
+  res.json({ success: true });
+});
+
+// ----------------- SKILLS DEVELOPMENT & SETA TRACKING (WSP / ATR / LEARNERSHIPS) ----------------- //
+app.get('/api/seta-records', (req: Request, res: Response) => {
+  const { companyId, employeeId } = req.query;
+  let results = [...setaRecords];
+  if (companyId) results = results.filter(r => r.companyId === companyId);
+  if (employeeId) results = results.filter(r => r.employeeId === employeeId);
+  res.json(results);
+});
+
+app.post('/api/seta-records', (req: Request, res: Response) => {
+  const newRec: SetaTrainingRecord = {
+    ...req.body,
+    id: `seta_${Date.now()}`
+  };
+  setaRecords.unshift(newRec);
+  res.status(201).json(newRec);
+});
+
+app.patch('/api/seta-records/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const idx = setaRecords.findIndex(r => r.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'SETA record not found' });
+  setaRecords[idx] = { ...setaRecords[idx], ...req.body };
+  res.json(setaRecords[idx]);
+});
+
+// ----------------- B-BBEE 5-ELEMENT SCORECARD & EVIDENCE ----------------- //
+app.get('/api/bbbee-scorecards', (req: Request, res: Response) => {
+  const { companyId } = req.query;
+  if (companyId) {
+    return res.json(bbbeeScorecards.filter(s => s.companyId === companyId));
+  }
+  res.json(bbbeeScorecards);
+});
+
+app.put('/api/bbbee-scorecards/:companyId', (req: Request, res: Response) => {
+  const { companyId } = req.params;
+  const idx = bbbeeScorecards.findIndex(s => s.companyId === companyId);
+  if (idx === -1) {
+    const created: BbbeeScorecardProfile = {
+      companyId: String(companyId),
+      ...req.body
+    };
+    bbbeeScorecards.push(created);
+    return res.json(created);
+  }
+  bbbeeScorecards[idx] = { ...bbbeeScorecards[idx], ...req.body };
+  res.json(bbbeeScorecards[idx]);
 });
 
 // ----------------- STANDARDIZED DIAGNOSTIC FRAMEWORKS & TESTING ----------------- //
